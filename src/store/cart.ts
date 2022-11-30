@@ -1,4 +1,5 @@
 import create from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export interface Item {
   id: string,
@@ -16,19 +17,23 @@ interface CartState {
   calculateTotalCartItemPrice: () => number
 }
 
-const useCartStore = create<CartState>((set) => ({
-  items: [],
-  addToCart: (item) => set((state) => ({ items: [...state.items, item] })),
-  //calculate total price of all items in cart
-  calculateTotalCartItemPrice: () => {
-    let total = 0;
-    if (useCartStore.getState().items.length > 0) {
-      useCartStore.getState().items.forEach((item) => {
-        total += item.price
-      })
-    }
-    return total;
-  }
-}));
+const useCartStore = create<CartState>()(
+  persist(
+    (set) => ({
+      items: [],
+      addToCart: (item) => set((state) => ({ items: [...state.items, item] })),
+      //calculate total price of all items in cart
+      calculateTotalCartItemPrice: () => {
+        let total = 0;
+        if (useCartStore.getState().items.length > 0) {
+          useCartStore.getState().items.forEach((item) => {
+            total += item.price
+          })
+        }
+        return total;
+      }
+    })
+  )
+);
 
 export default useCartStore;

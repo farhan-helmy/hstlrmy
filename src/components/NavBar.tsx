@@ -12,9 +12,10 @@
   }
   ```
 */
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react'
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import type { Item } from '../store/cart';
 import useCartStore from '../store/cart'
 
 const navigation = {
@@ -146,8 +147,15 @@ function classNames(...classes: string[]) {
 export default function NavBar() {
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false)
-  const cartStore = useCartStore();
+  const [cartItems, setCartItems] = useState<Item[]>([])
+  const [totalPrice, setTotalPrice] = useState(0)
+  const itemState = useCartStore(state => state.items);
+  const totalPriceState = useCartStore(state => state.calculateTotalCartItemPrice());
   
+  useEffect(() => {
+    setCartItems(itemState)
+    setTotalPrice(totalPriceState)
+  }, [itemState, totalPriceState])
   return (
     <>
       <div className="bg-white">
@@ -434,7 +442,7 @@ export default function NavBar() {
                         aria-hidden="true"
                         onClick={() => setCartOpen(true)}
                       />
-                      <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">{cartStore.items.length}</span>
+                      <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">{cartItems.length}</span>
                       <span className="sr-only">items in cart, view bag</span>
                     </a>
                   </div>
@@ -490,7 +498,7 @@ export default function NavBar() {
                         <div className="mt-8">
                           <div className="flow-root">
                             <ul role="list" className="-my-6 divide-y divide-gray-200">
-                              {cartStore.items.map((product) => (
+                              {cartItems.map((product) => (
                                 <li key={product.id} className="flex py-6">
                                   <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                                     <img
@@ -533,7 +541,7 @@ export default function NavBar() {
                       <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
                         <div className="flex justify-between text-base font-medium text-gray-900">
                           <p>Subtotal</p>
-                          <p>RM {cartStore.calculateTotalCartItemPrice()}</p>
+                          <p>RM {totalPrice}</p>
                         </div>
                         <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
                         <div className="mt-6">
