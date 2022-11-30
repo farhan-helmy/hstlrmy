@@ -12,11 +12,12 @@
   }
   ```
 */
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react'
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import type { Item } from '../store/cart';
 import useCartStore from '../store/cart'
+import { useClickAway } from 'react-use';
 
 const navigation = {
   categories: [
@@ -149,9 +150,14 @@ export default function NavBar() {
   const [cartOpen, setCartOpen] = useState(false)
   const [cartItems, setCartItems] = useState<Item[]>([])
   const [totalPrice, setTotalPrice] = useState(0)
+  const ref = useRef(null)
   const itemState = useCartStore(state => state.items);
   const totalPriceState = useCartStore(state => state.calculateTotalCartItemPrice());
   
+  useClickAway(ref, () => {
+    setCartOpen(false)
+  })
+
   useEffect(() => {
     setCartItems(itemState)
     setTotalPrice(totalPriceState)
@@ -479,7 +485,7 @@ export default function NavBar() {
                   leaveTo="translate-x-full"
                 >
                   <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                    <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                    <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl" ref={ref}>
                       <div className="flex-1 overflow-y-auto py-6 px-4 sm:px-6">
                         <div className="flex items-start justify-between">
                           <Dialog.Title className="text-lg font-medium text-gray-900">Shopping cart</Dialog.Title>
