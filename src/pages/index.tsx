@@ -7,7 +7,6 @@ import Head from "next/head";
 import NavBar from "../components/NavBar";
 import { PromotionBanner } from "../components/PromotionBanner";
 import { ProductLists } from "../components/ProductLists";
-import { ProductCategories } from "../components/ProductCategories";
 
 const Home: NextPage = () => {
   //const hello = trpc.example.hello.useQuery({ text: "from tRPC" });
@@ -22,7 +21,6 @@ const Home: NextPage = () => {
       </Head>
      <NavBar />
      <PromotionBanner/>
-     <ProductCategories />
      <ProductLists />
     </>
   );
