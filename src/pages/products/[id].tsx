@@ -30,7 +30,7 @@ export default function Product() {
   const [selectedColor, setSelectedColor] = useState(null)
   const router = useRouter()
   const { id } = router.query
-  const product = trpc.products.productById.useQuery({id: id as string})
+  const product = trpc.products.productById.useQuery({ id: id as string })
 
   return (
     <div className="bg-white">
@@ -92,21 +92,6 @@ export default function Product() {
             <div className="mt-3">
               <h3 className="sr-only">Reviews</h3>
               <div className="flex items-center">
-                {product.data ?
-                  <div className="flex items-center">
-                    {[0, 1, 2, 3, 4].map((rating) => (
-                      <StarIcon
-                        key={rating}
-                        className={classNames(
-                          product.data?.rating > rating ? 'text-indigo-500' : 'text-gray-300',
-                          'h-5 w-5 flex-shrink-0'
-                        )}
-                        aria-hidden="true"
-                      />
-                    ))}
-                  </div> : "Loading..."
-                }
-               
                 <p className="sr-only">{product.data?.rating} out of 5 stars</p>
               </div>
             </div>
@@ -117,7 +102,7 @@ export default function Product() {
                 className="space-y-6 text-base text-gray-700"
                 dangerouslySetInnerHTML={{ __html: product.data.description }}
               /> : "Loading..."}
-              
+
             </div>
 
             <form className="mt-6">
