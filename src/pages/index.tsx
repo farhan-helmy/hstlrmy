@@ -5,8 +5,10 @@ import Head from "next/head";
 
 //import { trpc } from "../utils/trpc";
 import NavBar from "../components/NavBar";
-import { PromotionBanner } from "../components/PromotionBanner";
+//import { PromotionBanner } from "../components/PromotionBanner";
 import { ProductLists } from "../components/ProductLists";
+//import { BannerSlider } from "../components/BannerSlider";
+import { SlideShowTest } from "../components/SlideShowTest";
 
 const Home: NextPage = () => {
   //const hello = trpc.example.hello.useQuery({ text: "from tRPC" });
@@ -20,7 +22,7 @@ const Home: NextPage = () => {
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
       </Head>
      <NavBar />
-     <PromotionBanner/>
+     <SlideShowTest />
      <ProductLists />
     </>
   );

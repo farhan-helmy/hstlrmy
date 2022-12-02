@@ -1,3 +1,23 @@
+.fade-animation img {
+  animation: fadeAnim 0.5s ease-in;
+}
+@keyframes fadeAnim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.each-slide-effect > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  aspect-ratio: 12/5;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
