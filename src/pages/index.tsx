@@ -1,17 +1,29 @@
 import { type NextPage } from "next";
 import Head from "next/head";
+import { useEffect } from "react";
 //import Link from "next/link";
 //import { signIn, signOut, useSession } from "next-auth/react";
 
 //import { trpc } from "../utils/trpc";
 import NavBar from "../components/NavBar";
+import Notification from "../components/Notification";
 //import { PromotionBanner } from "../components/PromotionBanner";
 import { ProductLists } from "../components/ProductLists";
 //import { BannerSlider } from "../components/BannerSlider";
 import { SlideShowTest } from "../components/SlideShowTest";
+import useNotificationStore from "../store/notification";
 
 const Home: NextPage = () => {
   //const hello = trpc.example.hello.useQuery({ text: "from tRPC" });
+  const notificationStore = useNotificationStore()
+
+  useEffect(() => {
+    setTimeout(() => {
+      notificationStore.closeNotification()
+    }
+      , 5000);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notificationStore.show]);
 
   return (
     <>
@@ -21,9 +33,10 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
       </Head>
-     <NavBar />
-     <SlideShowTest />
-     <ProductLists />
+      <NavBar />
+      <SlideShowTest />
+      <ProductLists />
+      <Notification show={notificationStore.show} title={notificationStore.title} message={notificationStore.message} success={notificationStore.success} />
     </>
   );
 };

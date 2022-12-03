@@ -3,14 +3,22 @@ import Link from "next/link";
 import type { FC } from "react"
 import type { Item } from "../store/cart";
 import useCartStore from "../store/cart";
+import useNotificationStore from "../store/notification";
 import { trpc } from "../utils/trpc";
 
 export const ProductLists: FC = () => {
   const cartStore = useCartStore();
   const products = trpc.products.getAll.useQuery();
+  const notificationStore = useNotificationStore()
 
   const addToCart = (product: Item) => {
     cartStore.addToCart(product);
+    notificationStore.showNotification({
+      title: "Added to cart",
+      message: `${product.name} has been added to your cart`,
+      success: true,
+      show: true
+    });
   }
 
   return (
