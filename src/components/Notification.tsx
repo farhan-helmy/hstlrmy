@@ -4,7 +4,7 @@ import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import { XMarkIcon } from '@heroicons/react/20/solid'
 import useNotificationStore from '../store/notification'
 
-type NotificationProps = {
+export type NotificationProps = {
   show: boolean
   title: string
   message: string
