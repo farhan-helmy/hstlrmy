@@ -8,7 +8,7 @@ export interface Item {
   price: string,
   imageSrc: string,
   imageAlt: string,
-
+  quantity: number
 }
 
 interface CartState {
@@ -16,8 +16,9 @@ interface CartState {
   totalItems: number
   totalPrice: number
   addToCart: (item: Item) => void
-  calculateTotalCartItemPrice: () => number
   removeAllItemsFromCart: () => void
+  removeOneItemFromCart: (id: string) => void
+  updateQuantity: (id: string, quantity: number) => void
 }
 
 const useCartStore = create<CartState>()(
@@ -32,17 +33,24 @@ const useCartStore = create<CartState>()(
         totalPrice: state.totalPrice + parseFloat(item.price),
         totalItems: state.totalItems + 1
       })),
-      //calculate total price of all items in cart
-      calculateTotalCartItemPrice: () => {
-        let total = 0;
-        if (useCartStore.getState().items.length > 0) {
-          useCartStore.getState().items.forEach((item) => {
-            total += parseFloat(item.price)
-          })
+      removeAllItemsFromCart: () => set(() => ({ items: [], totalItems: 0, totalPrice: 0 })),
+      removeOneItemFromCart: (id) => set((state) => ({
+        items: state.items.filter((item) => item.id !== id),
+        totalItems: state.totalItems - 1,
+        totalPrice: state.totalPrice - parseFloat(state.items.find((item) => item.id === id)?.price || '0')
+      })),
+      updateQuantity: (id, quantity) => set((state) => {
+        const item = state.items.find((item) => item.id === id)
+        if (item) {
+          item.quantity = quantity
         }
-        return total;
+        return {
+          items: [...state.items],
+          totalItems: state.totalItems + 1,
+          totalPrice: state.totalPrice + (parseFloat(item?.price || '0'))
+        }
       },
-      removeAllItemsFromCart: () => set(() => ({ items: [] })),
+      )
     }),
     {
       name: 'cart'

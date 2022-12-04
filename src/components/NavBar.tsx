@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /*
   This example requires some changes to your config:
   

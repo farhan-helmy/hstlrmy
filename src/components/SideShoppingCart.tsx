@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Fragment, useEffect, useRef, useState } from "react";
+import Link from 'next/link'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import type { Item } from '../store/cart';
@@ -18,7 +19,7 @@ export const SideShoppingCart = ({ cartOpen, setOpen, setCartOpen }: SideShoppin
   const [totalPrice, setTotalPrice] = useState(0)
   const cartStore = useCartStore()
   const itemState = useCartStore(state => state.items);
-  const totalPriceState = useCartStore(state => state.calculateTotalCartItemPrice());
+  const totalPriceState = useCartStore(state => state.totalPrice);
 
   useClickAway(ref, () => {
     setCartOpen(false)
@@ -28,6 +29,10 @@ export const SideShoppingCart = ({ cartOpen, setOpen, setCartOpen }: SideShoppin
     setCartItems(itemState)
     setTotalPrice(totalPriceState)
   }, [itemState, totalPriceState])
+
+  const removeItemFromCart = (id: string) => {
+    cartStore.removeOneItemFromCart(id)
+  }
 
   return (
     <Transition.Root show={cartOpen} as={Fragment}>
@@ -94,18 +99,19 @@ export const SideShoppingCart = ({ cartOpen, setOpen, setCartOpen }: SideShoppin
                                       </h3>
                                       <p className="ml-4">RM {product.price}</p>
                                     </div>
-                                    <p className="mt-1 text-sm text-gray-500">-</p>
+                                    <p className="mt-1 text-sm text-gray-500"></p>
                                   </div>
                                   <div className="flex flex-1 items-end justify-between text-sm">
-                                    <p className="text-gray-500">Qty</p>
+                                    <p className="text-gray-500">Qty {product.quantity}</p>
 
                                     <div className="flex">
-                                      <button
+                                      {/* <button
                                         type="button"
                                         className="font-medium text-indigo-600 hover:text-indigo-500"
+                                        onClick={() => removeItemFromCart(product.id)}
                                       >
                                         Remove
-                                      </button>
+                                      </button> */}
                                     </div>
                                   </div>
                                 </div>
@@ -132,12 +138,13 @@ export const SideShoppingCart = ({ cartOpen, setOpen, setCartOpen }: SideShoppin
                       </div>
                       <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
                       <div className="mt-6">
-                        <a
-                          href="#"
+                        <Link
+                          href="/checkout"
                           className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                          
                         >
                           Checkout
-                        </a>
+                        </Link>
                       </div>
                       <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                         <p>
