@@ -12,13 +12,16 @@
   }
   ```
 */
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { RadioGroup, Transition } from '@headlessui/react'
 import { CheckCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from 'next'
-import { checkPhoneNumber } from '../helper/utils'
+import { checkPhoneNumber, securepaySign } from '../helper/utils'
 import Alert from '../components/Alerts'
 import type { NotificationProps } from '../components/Notification'
+import { trpc } from '../utils/trpc'
+import { env } from '../env/client.mjs'
+
 
 const products = [
   {
@@ -47,11 +50,35 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
+interface CheckoutData {
+  email: string
+  name: string
+  phone_no: string
+  product_description: string
+  transaction_amount: number
+  token: string
+  checksum: string
+  order_number: string
+}
+
 const Checkout: NextPage = () => {
   const [openShippingInformation, setOpenShippingInformation] = useState(false)
   const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState(deliveryMethods[0])
   const [phoneNumber, setPhoneNumber] = useState('')
   const [notification, setNotification] = useState<NotificationProps>({title: '', message: '', success: false, show: false})
+  const [checkoutData, setCheckoutData] = useState<CheckoutData>({
+    email: '',
+    name: '',
+    phone_no: '',
+    product_description: '',
+    transaction_amount: 0,
+    token: '',
+    checksum: '',
+    order_number: ''
+  })
+  const [confirmOrder, setConfirmOrder] = useState(false)
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   const continueShippingInformation = () => {
     if (checkPhoneNumber(phoneNumber)) {
@@ -74,6 +101,37 @@ const Checkout: NextPage = () => {
       }
       , 2000)
     }
+  }
+
+  const checkoutItem = () => {
+    const ordernum = crypto.randomUUID()
+    const amount = parseFloat('100')
+    const sign = securepaySign({
+      email: 'farhanhlmy@gmail.com',
+      name: 'Farhan',
+      phone_no: '0123456789',
+      product_description: 'Test',
+      transaction_amount: amount,
+      order_number: ordernum
+    })
+
+    setCheckoutData({
+      email: 'farhanhlmy@gmail.com',
+      name: 'Farhan',
+      phone_no: '0123456789',
+      product_description: 'Test',
+      transaction_amount: amount,
+      token: env.NEXT_PUBLIC_SECUREPAY_AUTH_TOKEN as never,
+      checksum: sign,
+      order_number: ordernum
+    })
+
+    setConfirmOrder(true)
+    
+  }
+
+  const submit = () => {
+    formRef.current?.requestSubmit()
   }
   return (
     <div className="bg-gray-50">
@@ -524,15 +582,47 @@ const Checkout: NextPage = () => {
               </dl>
 
               <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
-                <button
-                  type="submit"
-                  className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                >
-                  Confirm order
-                </button>
+                {
+                  confirmOrder ? <button
+                    onClick={() => submit()}
+                    type="submit"
+                    className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                  >
+                    Pay
+                  </button> :
+                    <button
+                      onClick={() => checkoutItem()}
+                      type="submit"
+                      className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                    >
+                      Confirm Order
+                    </button>
+                }
+                
               </div>
             </div>
           </div>
+        </form>
+        <form ref={formRef} method="POST" action='https://sandbox.securepay.my/api/v1/payments'>
+          <input type="hidden" name="buyer_name" value={checkoutData.name} />
+          <input type="hidden" name="buyer_email" value={checkoutData.email} />
+          <input type="hidden" name="token" value={checkoutData.token} />
+          <input type="hidden" name="transaction_amount" value={checkoutData.transaction_amount} />
+          <input type="hidden" name="checksum" value={checkoutData.checksum} />
+          <input type="hidden" name="callback_url" value="" />
+          <input type="hidden" name="redirect_url" value="" />
+          <input type="hidden" name="order_number" value={checkoutData.order_number} />
+          <input type="hidden" name="buyer_phone" value={checkoutData.phone_no} />
+          <input
+            type="hidden"
+            name="product_description"
+            value={checkoutData.product_description}
+        />
+          <input
+            type="hidden"
+            name="redirect_post"
+            value=""
+        />
         </form>
       </div>
     </div>
