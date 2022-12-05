@@ -23,7 +23,7 @@ export const checkPhoneNumber = (phoneNumber: string) => {
 export const securepaySign = (customerData: CustomerData) => {
 
   const signData = customerData.email + '|' + customerData.name + '|' + customerData.phone_no + '|' + '' + '|' + customerData.order_number + '|' + customerData.product_description + '|' + '' + '|' + customerData.transaction_amount + '|' + env.NEXT_PUBLIC_SECUREPAY_UID
-  alert(signData)
+
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return CryptoJS.HmacSHA256(signData, env.NEXT_PUBLIC_SECUREPAY_CHECKSUM_TOKEN!).toString(CryptoJS.enc.Hex);
   
