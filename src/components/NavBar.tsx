@@ -19,6 +19,7 @@ import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@her
 import type { Item } from '../store/cart';
 import useCartStore from '../store/cart'
 import { SideShoppingCart } from './SideShoppingCart';
+import Link from 'next/link';
 
 const navigation = {
   categories: [
@@ -317,9 +318,9 @@ export default function NavBar() {
 
                 {/* Logo */}
                 <div className="ml-4 flex lg:ml-0">
-                  <a href="#">
-                    <span className="text-3xl font-normal text-black">Hustlermy</span>
-                  </a>
+                  <Link href="/">
+                   <span className="text-3xl font-normal text-black">Hustlermy</span>
+                  </Link>
                 </div>
 
                 {/* Flyout menus */}

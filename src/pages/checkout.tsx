@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /*
   This example requires some changes to your config:
   
@@ -12,15 +13,17 @@
   }
   ```
 */
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { RadioGroup, Transition } from '@headlessui/react'
 import { CheckCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from 'next'
 import { checkPhoneNumber, securepaySign } from '../helper/utils'
 import Alert from '../components/Alerts'
 import type { NotificationProps } from '../components/Notification'
+import type { Item } from '../store/cart';
 import { trpc } from '../utils/trpc'
 import { env } from '../env/client.mjs'
+import useCartStore from '../store/cart'
 
 
 const products = [
@@ -37,14 +40,13 @@ const products = [
   // More products...
 ]
 const deliveryMethods = [
-  { id: 1, title: 'Standard', turnaround: '4–10 business days', price: '$5.00' },
-  { id: 2, title: 'Express', turnaround: '2–5 business days', price: '$16.00' },
+  { id: 1, title: 'Standard', turnaround: '3–4 business days', price: 'RM 5.50' },
 ]
-const paymentMethods = [
-  { id: 'credit-card', title: 'Credit card' },
-  { id: 'paypal', title: 'PayPal' },
-  { id: 'etransfer', title: 'eTransfer' },
-]
+// const paymentMethods = [
+//   { id: 'credit-card', title: 'Credit card' },
+//   { id: 'paypal', title: 'PayPal' },
+//   { id: 'etransfer', title: 'eTransfer' },
+// ]
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -65,7 +67,7 @@ const Checkout: NextPage = () => {
   const [openShippingInformation, setOpenShippingInformation] = useState(false)
   const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState(deliveryMethods[0])
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [notification, setNotification] = useState<NotificationProps>({title: '', message: '', success: false, show: false})
+  const [notification, setNotification] = useState<NotificationProps>({ title: '', message: '', success: false, show: false })
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
     email: '',
     name: '',
@@ -77,13 +79,22 @@ const Checkout: NextPage = () => {
     order_number: ''
   })
   const [confirmOrder, setConfirmOrder] = useState(false)
+  const [cartItems, setCartItems] = useState<Item[]>([])
+  const [totalPrice, setTotalPrice] = useState(0)
+  const itemState = useCartStore(state => state.items);
+  const totalPriceState = useCartStore(state => state.totalPrice);
+
+  useEffect(() => {
+    setCartItems(itemState)
+    setTotalPrice(totalPriceState)
+  }, [itemState, totalPriceState])
 
   const formRef = useRef<HTMLFormElement>(null);
 
   const continueShippingInformation = () => {
     if (checkPhoneNumber(phoneNumber)) {
       setOpenShippingInformation(true)
-    }else{
+    } else {
       setNotification({
         title: 'Please enter a valid phone number',
         message: 'Please enter a valid phone number',
@@ -99,7 +110,7 @@ const Checkout: NextPage = () => {
           show: false,
         })
       }
-      , 2000)
+        , 2000)
     }
   }
 
@@ -127,15 +138,15 @@ const Checkout: NextPage = () => {
     })
 
     setConfirmOrder(true)
-    
+
   }
 
   const submit = () => {
     formRef.current?.requestSubmit()
   }
   return (
-    <div className="bg-gray-50">
-    
+    <div className="bg-gray-100 h-screen">
+
       <div className="mx-auto max-w-2xl px-4 pt-16 pb-24 sm:px-6 lg:max-w-7xl lg:px-8">
         <h2 className="sr-only">Checkout</h2>
 
@@ -224,21 +235,6 @@ const Checkout: NextPage = () => {
                       />
                     </div>
                   </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="company" className="block text-sm font-medium text-gray-700">
-                      Company
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="company"
-                        id="company"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                    </div>
-                  </div>
-
                   <div className="sm:col-span-2">
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                       Address
@@ -294,9 +290,7 @@ const Checkout: NextPage = () => {
                         autoComplete="country-name"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       >
-                        <option>United States</option>
-                        <option>Canada</option>
-                        <option>Mexico</option>
+                        <option>Malaysia</option>
                       </select>
                     </div>
                   </div>
@@ -326,21 +320,6 @@ const Checkout: NextPage = () => {
                         name="postal-code"
                         id="postal-code"
                         autoComplete="postal-code"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-2">
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                      Phone
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        name="phone"
-                        id="phone"
-                        autoComplete="tel"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
                     </div>
@@ -401,102 +380,7 @@ const Checkout: NextPage = () => {
               </RadioGroup>
             </div>
 
-            {/* Payment */}
-            <div className="mt-10 border-t border-gray-200 pt-10">
-              <h2 className="text-lg font-medium text-gray-900">Payment</h2>
 
-              <fieldset className="mt-4">
-                <legend className="sr-only">Payment type</legend>
-                <div className="space-y-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                  {paymentMethods.map((paymentMethod, paymentMethodIdx) => (
-                    <div key={paymentMethod.id} className="flex items-center">
-                      {paymentMethodIdx === 0 ? (
-                        <input
-                          id={paymentMethod.id}
-                          name="payment-type"
-                          type="radio"
-                          defaultChecked
-                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                      ) : (
-                        <input
-                          id={paymentMethod.id}
-                          name="payment-type"
-                          type="radio"
-                          className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                      )}
-
-                      <label htmlFor={paymentMethod.id} className="ml-3 block text-sm font-medium text-gray-700">
-                        {paymentMethod.title}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </fieldset>
-
-              <div className="mt-6 grid grid-cols-4 gap-y-6 gap-x-4">
-                <div className="col-span-4">
-                  <label htmlFor="card-number" className="block text-sm font-medium text-gray-700">
-                    Card number
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="card-number"
-                      name="card-number"
-                      autoComplete="cc-number"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div className="col-span-4">
-                  <label htmlFor="name-on-card" className="block text-sm font-medium text-gray-700">
-                    Name on card
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      id="name-on-card"
-                      name="name-on-card"
-                      autoComplete="cc-name"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div className="col-span-3">
-                  <label htmlFor="expiration-date" className="block text-sm font-medium text-gray-700">
-                    Expiration date (MM/YY)
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="expiration-date"
-                      id="expiration-date"
-                      autoComplete="cc-exp"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="cvc" className="block text-sm font-medium text-gray-700">
-                    CVC
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="cvc"
-                      id="cvc"
-                      autoComplete="csc"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Order summary */}
@@ -506,7 +390,7 @@ const Checkout: NextPage = () => {
             <div className="mt-4 rounded-lg border border-gray-200 bg-white shadow-sm">
               <h3 className="sr-only">Items in your cart</h3>
               <ul role="list" className="divide-y divide-gray-200">
-                {products.map((product) => (
+                {cartItems.length !== 0 ? cartItems.map((product) => (
                   <li key={product.id} className="flex py-6 px-4 sm:px-6">
                     <div className="flex-shrink-0">
                       <img src={product.imageSrc} alt={product.imageAlt} className="w-20 rounded-md" />
@@ -517,11 +401,11 @@ const Checkout: NextPage = () => {
                         <div className="min-w-0 flex-1">
                           <h4 className="text-sm">
                             <a href={product.href} className="font-medium text-gray-700 hover:text-gray-800">
-                              {product.title}
+                              {product.name}
                             </a>
                           </h4>
-                          <p className="mt-1 text-sm text-gray-500">{product.color}</p>
-                          <p className="mt-1 text-sm text-gray-500">{product.size}</p>
+                          {/* <p className="mt-1 text-sm text-gray-500">{product.color}</p>
+                          <p className="mt-1 text-sm text-gray-500">{product.size}</p> */}
                         </div>
 
                         <div className="ml-4 flow-root flex-shrink-0">
@@ -536,7 +420,7 @@ const Checkout: NextPage = () => {
                       </div>
 
                       <div className="flex flex-1 items-end justify-between pt-2">
-                        <p className="mt-1 text-sm font-medium text-gray-900">{product.price}</p>
+                        <p className="mt-1 text-sm font-medium text-gray-900">RM {product.price}</p>
 
                         <div className="ml-4">
                           <label htmlFor="quantity" className="sr-only">
@@ -560,46 +444,45 @@ const Checkout: NextPage = () => {
                       </div>
                     </div>
                   </li>
-                ))}
+                )) : <>
+                  <div>
+                    <div className="text-3xl ml-4">Cart is empty</div>
+                  </div>
+                </>}
               </ul>
-              <dl className="space-y-6 border-t border-gray-200 py-6 px-4 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm">Subtotal</dt>
-                  <dd className="text-sm font-medium text-gray-900">$64.00</dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm">Shipping</dt>
-                  <dd className="text-sm font-medium text-gray-900">$5.00</dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm">Taxes</dt>
-                  <dd className="text-sm font-medium text-gray-900">$5.52</dd>
-                </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-                  <dt className="text-base font-medium">Total</dt>
-                  <dd className="text-base font-medium text-gray-900">$75.52</dd>
-                </div>
-              </dl>
-
-              <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
-                {
-                  confirmOrder ? <button
-                    onClick={() => submit()}
-                    type="submit"
-                    className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                  >
-                    Pay
-                  </button> :
-                    <button
-                      onClick={() => checkoutItem()}
-                      type="submit"
-                      className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
-                    >
-                      Confirm Order
-                    </button>
-                }
-                
-              </div>
+              {
+                cartItems.length !== 0 ? <><dl className="space-y-6 border-t border-gray-200 py-6 px-4 sm:px-6">
+                  <div className="flex items-center justify-between">
+                    <dt className="text-sm">Subtotal</dt>
+                    <dd className="text-sm font-medium text-gray-900">RM {totalPrice}</dd>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <dt className="text-sm">Shipping</dt>
+                    <dd className="text-sm font-medium text-gray-900">RM 5.50</dd>
+                  </div>
+                  <div className="flex items-center justify-between border-t border-gray-200 pt-6">
+                    <dt className="text-base font-medium">Total</dt>
+                    <dd className="text-base font-medium text-gray-900">RM {totalPrice + parseFloat('5.50')}</dd>
+                  </div>
+                </dl><div className="border-t border-gray-200 py-6 px-4 sm:px-6">
+                    {
+                      confirmOrder ? <button
+                        onClick={() => submit()}
+                        type="submit"
+                        className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                      >
+                        Pay
+                      </button> :
+                        <button
+                          onClick={() => checkoutItem()}
+                          type="submit"
+                          className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                        >
+                          Confirm Order
+                        </button>
+                    }
+                  </div></> : <></>
+              }
             </div>
           </div>
         </form>
@@ -617,12 +500,12 @@ const Checkout: NextPage = () => {
             type="hidden"
             name="product_description"
             value={checkoutData.product_description}
-        />
+          />
           <input
             type="hidden"
             name="redirect_post"
             value=""
-        />
+          />
         </form>
       </div>
     </div>
