@@ -9,6 +9,7 @@ const products = [
     price: '48',
     imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg',
     imageAlt: 'Tall slender porcelain bottle with natural clay textured body and cork stopper.',
+    isEnabled: false,
   },
   {
     id: 'abc123',
@@ -17,6 +18,7 @@ const products = [
     price: '35',
     imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-02.jpg',
     imageAlt: 'Olive drab green insulated bottle with flared screw lid and flat top.',
+    isEnabled: false,
   },
   {
     id: 'abc122',
@@ -25,6 +27,7 @@ const products = [
     price: '89',
     imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-03.jpg',
     imageAlt: 'Person using a pen to cross a task off a productivity paper card.',
+    isEnabled: false,
   },
   {
     id: 'abc121',
@@ -33,6 +36,7 @@ const products = [
     price: '50',
     imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-04.jpg',
     imageAlt: 'Hand holding black machined steel mechanical pencil with brass tip and top.',
+    isEnabled: false,
   },
   // More products...
 ]
@@ -86,5 +90,15 @@ export const productRouter = router({
     .query(({ input }) => {
       return productOneChoose.find((product) => product.id === input?.id);
     }),
+  toggleStatus: publicProcedure
+    .input(z.object({ id: z.string().nullish() }).nullish())
+    .mutation(({ input }) => {
+      const product = products.find((product) => product.id === input?.id);
+      if (product) {
+        product.isEnabled = !product.isEnabled;
+      }
+      return product;
+    }
+    ),
 });
 

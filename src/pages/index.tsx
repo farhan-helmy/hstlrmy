@@ -3,13 +3,10 @@ import Head from "next/head";
 import { useEffect } from "react";
 //import Link from "next/link";
 //import { signIn, signOut, useSession } from "next-auth/react";
-
 //import { trpc } from "../utils/trpc";
 import NavBar from "../components/NavBar";
 import Notification from "../components/Notification";
-//import { PromotionBanner } from "../components/PromotionBanner";
 import { ProductLists } from "../components/ProductLists";
-//import { BannerSlider } from "../components/BannerSlider";
 import { SlideShowTest } from "../components/SlideShowTest";
 import useNotificationStore from "../store/notification";
 

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /*
   This example requires some changes to your config:
   
@@ -14,21 +15,18 @@
 */
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
+import Head from 'next/head'
 import {
   Bars3BottomLeftIcon,
   BellIcon,
   ArchiveBoxIcon,
-  ChartBarIcon,
   HomeIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { useRouter } from 'next/router'
 
-const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-  { name: 'Products', href: '/admin/products', icon: ArchiveBoxIcon, current: false },
-  { name: 'Reports', href: '#', icon: ChartBarIcon, current: false },
-]
+
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
   { name: 'Settings', href: '#' },
@@ -39,9 +37,18 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Example() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+type AdminLayoutProps = {
+  children: React.ReactNode
+}
 
+export const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const router = useRouter()
+
+  const navigation = [
+    { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: router.pathname === '/admin/dashboard' },
+    { name: 'Products', href: '/admin/products', icon: ArchiveBoxIcon, current: router.pathname === '/admin/products' },
+  ]
   return (
     <>
       {/*
@@ -52,6 +59,13 @@ export default function Example() {
         <body class="h-full">
         ```
       */}
+      <Head>
+        <title>Hustlermy</title>
+        <meta name="description" content="Ecommerce nombor 1 Malaysia" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+      </Head>
+      
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog as="div" className="relative z-40 md:hidden" onClose={setSidebarOpen}>
@@ -246,14 +260,10 @@ export default function Example() {
 
           <main>
             <div className="py-6">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-                <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-              </div>
+             
               <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
                 {/* Replace with your content */}
-                <div className="py-4">
-                  <div className="h-96 rounded-lg border-4 border-dashed border-gray-200" />
-                </div>
+                {children}
                 {/* /End replace */}
               </div>
             </div>
