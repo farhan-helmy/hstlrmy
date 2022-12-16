@@ -100,5 +100,46 @@ export const productRouter = router({
       return product;
     }
     ),
+  addProduct: publicProcedure
+    .input(z.object({
+      name: z.string(),
+      price: z.string(),
+      weight: z.string(),
+      imageSrc: z.string(),
+      variant: z.array(
+        z.object({
+          name: z.string().min(1, { message: "Variant name is required" }).max(100),
+          imageSrc: z.string().min(1, { message: "Variant image is required" }).max(10000),
+        })
+      )
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.product.create({
+        data: {
+          name: input?.name,
+          price: parseFloat(input?.price),
+          weight: parseFloat(input?.weight),
+          images: {
+            create: [
+              {
+                src: input?.imageSrc,
+                alt: input?.name,
+              }
+            ]
+          },
+          variants: {
+           createMany: {
+            data: [
+              ...input?.variant.map((variant) => ({
+                name: variant.name,
+                imageSrc: variant.imageSrc,
+                type: "color",
+              }))
+            ]
+           }
+          }
+        },
+      });
+    }),
 });
 

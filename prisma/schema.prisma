@@ -20,14 +20,36 @@ model Example {
   updatedAt DateTime @updatedAt
 }
 
+model Variant {
+  id        String  @id @default(cuid())
+  name      String
+  type      String // color, size, etc
+  price     Int?
+  imageSrc  String?
+  imageAlt  String?
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+}
+
 model Product {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  name      String?
+  price     Int?
+  weight    Int?
+  variants  Variant[]
+  images    Images[]
+}
+
+model Images {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  name      String
-  price     Int
-  imageSrc  String?
-  imageAlt  String?
+  src       String
+  alt       String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
 }
 
 // Necessary for Next auth
@@ -37,12 +59,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
