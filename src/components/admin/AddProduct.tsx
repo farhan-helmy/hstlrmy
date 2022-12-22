@@ -73,6 +73,7 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
   })
 
   const [selectedVariantType, setSelectedVariantType] = useState(variantTypes[0])
+
   const { uploadToS3 } = useS3Upload();
 
   const onProductImageChange = async (e: any) => {
@@ -97,6 +98,7 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
   };
 
   return (
+   
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
         <Transition.Child
@@ -415,5 +417,6 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
 
       </Dialog>
     </Transition.Root>
+ 
   )
 }

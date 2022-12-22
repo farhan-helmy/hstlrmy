@@ -8,7 +8,7 @@ import { trpc } from "../utils/trpc";
 
 export const ProductLists: FC = () => {
   const cartStore = useCartStore();
-  const products = trpc.products.getAll.useQuery();
+  const products = trpc.products.getActiveProducts.useQuery();
   const notificationStore = useNotificationStore();
 
   const addToCart = (product: Item) => {
@@ -36,12 +36,12 @@ export const ProductLists: FC = () => {
           {products.data?.map((product) => (
             <div key={product.id} className="group">
               <div className="aspect-w-4 aspect-h-3 overflow-hidden rounded-lg bg-gray-100">
-                <img src={product.imageSrc} alt={product.imageAlt} className="object-cover object-center" />
+                <img src={product.images[0]?.src} alt={product.images[0]?.alt} className="object-cover object-center" />
                 <div className="flex flex-col justify-center gap-4 items-end p-4 opacity-0 group-hover:opacity-100">
                   <Link href={`/products/${encodeURIComponent(product.id)}`} className="w-full rounded-md bg-blue-700 bg-opacity-75 py-2 px-4 text-center text-sm font-medium text-gray-900 backdrop-blur backdrop-filter">
                     View Product
                   </Link>
-                  <button className="w-full rounded-md bg-white bg-opacity-75 py-2 px-4 text-center text-sm font-medium text-gray-900 backdrop-blur backdrop-filter" onClick={() => addToCart({
+                  {/* <button className="w-full rounded-md bg-white bg-opacity-75 py-2 px-4 text-center text-sm font-medium text-gray-900 backdrop-blur backdrop-filter" onClick={() => addToCart({
                     name: product.name,
                     id: product.id,
                     price: product.price,
@@ -51,7 +51,7 @@ export const ProductLists: FC = () => {
                     href: ""
                   })}>
                     Add to cart
-                  </button>
+                  </button> */}
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between space-x-8 text-base font-medium text-gray-900">

@@ -32,14 +32,16 @@ model Variant {
 }
 
 model Product {
-  id        String    @id @default(cuid())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  name      String?
-  price     Int?
-  weight    Int?
-  variants  Variant[]
-  images    Images[]
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  name        String?
+  price       Int?
+  weight      Int?
+  description String?
+  isActive    Boolean   @default(true)
+  variants    Variant[]
+  images      Images[]
 }
 
 model Images {

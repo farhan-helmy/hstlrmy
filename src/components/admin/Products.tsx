@@ -1,21 +1,30 @@
+/* eslint-disable @next/next/no-img-element */
 import { PencilSquareIcon, BoltIcon } from '@heroicons/react/20/solid'
 import { trpc } from "../../utils/trpc";
 import { Switch } from '@headlessui/react'
 import AddProduct from './AddProduct';
-import { useState } from 'react';
+import { use, useState } from 'react';
+import EditProduct from './EditProduct';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
 export default function Products() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [editProductOpen, setEditProductOpen] = useState(false);
+  const [productId, setProductId] = useState("");
   const products = trpc.products.getAll.useQuery();
   const toggleStatus = trpc.products.toggleStatus.useMutation();
 
   const toggleProductStatus = async (id: string) => {
     await toggleStatus.mutateAsync({ id });
     products.refetch();
+  };
+
+  const editProduct = async (id: string) => {
+    setProductId(id);
+    setEditProductOpen(true);
   };
 
 
@@ -36,7 +45,7 @@ export default function Products() {
             className="col-span-1 flex flex-col divide-y divide-gray-200 rounded-lg bg-white text-center shadow"
           >
             <div className="flex flex-1 flex-col p-8">
-              <img className="mx-auto h-32 w-32 flex-shrink-0 rounded-md" src={product.imageSrc} alt="" />
+              <img className="mx-auto h-24 w-32 flex-shrink-0 rounded-md" src={product.images[0]?.src} alt="" />
               <h3 className="mt-6 text-sm font-medium text-gray-900">{product.name}</h3>
               <dl className="mt-1 flex flex-grow flex-col justify-between">
                 <dt className="sr-only">Title</dt>
@@ -46,26 +55,26 @@ export default function Products() {
                   <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
                     In Stock
                   </span>
-                </dd>
+                </dd> 
                 <dd className="mt-3">
                   <Switch
-                    checked={product.isEnabled}
+                    checked={product.isActive}
                     onChange={() => toggleProductStatus(product.id)}
                     className={classNames(
-                      product.isEnabled ? 'bg-indigo-600' : 'bg-gray-200',
+                      product.isActive ? 'bg-indigo-600' : 'bg-gray-200',
                       'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                     )}
                   >
                     <span className="sr-only">Use setting</span>
                     <span
                       className={classNames(
-                        product.isEnabled ? 'translate-x-5' : 'translate-x-0',
+                        product.isActive ? 'translate-x-5' : 'translate-x-0',
                         'pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
                       )}
                     >
                       <span
                         className={classNames(
-                          product.isEnabled ? 'opacity-0 ease-out duration-100' : 'opacity-100 ease-in duration-200',
+                          product.isActive ? 'opacity-0 ease-out duration-100' : 'opacity-100 ease-in duration-200',
                           'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
                         )}
                         aria-hidden="true"
@@ -82,7 +91,7 @@ export default function Products() {
                       </span>
                       <span
                         className={classNames(
-                          product.isEnabled ? 'opacity-100 ease-in duration-200' : 'opacity-0 ease-out duration-100',
+                          product.isActive ? 'opacity-100 ease-in duration-200' : 'opacity-0 ease-out duration-100',
                           'absolute inset-0 flex h-full w-full items-center justify-center transition-opacity'
                         )}
                         aria-hidden="true"
@@ -100,6 +109,7 @@ export default function Products() {
               <div className="-mt-px flex divide-x divide-gray-200">
                 <div className="flex w-0 flex-1">
                   <button
+                    onClick={() => editProduct(product.id)}
                     className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center rounded-bl-lg border border-transparent py-4 text-sm font-medium text-gray-700 hover:text-gray-500"
                   >
                     <PencilSquareIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -112,6 +122,7 @@ export default function Products() {
         ))}
       </ul>
       <AddProduct open={open} setOpen={setOpen} />
+      <EditProduct editProductOpen={editProductOpen} setEditProductOpen={setEditProductOpen} id={productId} />
     </>
   )
 }
