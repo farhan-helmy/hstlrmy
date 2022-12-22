@@ -10,7 +10,7 @@ export const SlideShowTest = () => {
   return (
     <Slide transitionDuration={600}>
       <div className="each-slide-effect">
-        <div style={{ 'backgroundImage': `url(${images[0]})` }}>
+        <div style={{ 'backgroundImage': `url(${images[0]})`}}>
         </div>
       </div>
       <div className="each-slide-effect">

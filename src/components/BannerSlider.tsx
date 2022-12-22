@@ -3,8 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
 
 const banner = [
-  '/Hustlermy_header-01.jpg',
-  '/Hustlermy_header-01.jpg',
+  '/bannerv2.jpg',
 ]
 
 let count = 0;
@@ -54,7 +53,7 @@ export const BannerSlider = () => {
 
   return (
     <div ref={ref} className="w-full select-none relative group">
-      <div className="aspect-w-12 aspect-h-5">
+      <div className="aspect-w-10 aspect-h-3">
         <img src={banner[currentSlide]} alt="smartwatch-1" />
       </div>
       <div className="absolute w-full top-1/2 transform -translate-y-1/2 px-3 flex justify-between items-center">    
