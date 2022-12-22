@@ -71,7 +71,7 @@ export default function EditVariant({ editVariantOpen, setEditVariantOpen, id }:
 
     setValue(`variant.${index}.imageSrc`, url);
   }
-
+  
   const onRemoveVariant = (index: number) => {
     const variantId = getValues(`variant.${index}.id`)
     console.log(variantId)
