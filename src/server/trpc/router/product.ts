@@ -44,18 +44,47 @@ const productOneChoose = [{
 export const productRouter = router({
   getAll: publicProcedure
     .query(async ({ ctx }) => {
-      const products = await ctx.prisma.product.findMany({ include: { images: true }, orderBy: { createdAt: 'desc' } });
+      const products = await ctx.prisma.product.findMany({
+        include: {
+          images: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
       return products;
     }),
   getProduct: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
-      const product = await ctx.prisma.product.findUnique({ where: { id: input?.id }, include: { images: true, variants: true } });
+      const product = await ctx.prisma.product.findUnique({
+        where: {
+          id: input?.id
+        },
+        include: {
+          images: true,
+          variants: {
+            orderBy: {
+              name: 'desc'
+            }
+          }
+        }
+      });
       return product;
     }),
   getActiveProducts: publicProcedure
     .query(async ({ ctx }) => {
-      const products = await ctx.prisma.product.findMany({ where: { isActive: true }, include: { images: true }, orderBy: { createdAt: 'desc' } });
+      const products = await ctx.prisma.product.findMany({
+        where: {
+          isActive: true
+        },
+        include: {
+          images: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
       return products;
     }),
   productById: publicProcedure
@@ -152,25 +181,38 @@ export const productRouter = router({
         },
       });
     }),
-  updateVariant: publicProcedure
+  addVariant: publicProcedure
     .input(z.object({
       variant: z.array(z.object({
         id: z.string(),
-        name: z.string(),
-        imageSrc: z.string(),
+        name: z.string().min(1),
+        imageSrc: z.string().min(1),
+        add: z.boolean(),
+        productId: z.string()
       }))
     }))
     .mutation(async ({ input, ctx }) => {
       input?.variant.forEach(async (variant) => {
-        await ctx.prisma.variant.update({
-          where: {
-            id: variant.id,
-          },
-          data: {
-            name: variant.name,
-            imageSrc: variant.imageSrc,
-          },
-        });
+        if (variant.add) {
+          await ctx.prisma.variant.create({
+            data: {
+              name: variant.name,
+              imageSrc: variant.imageSrc,
+              productId: variant.productId,
+              type: "color",
+            },
+          });
+        } else {
+          await ctx.prisma.variant.update({
+            where: {
+              id: variant.id,
+            },
+            data: {
+              name: variant.name,
+              imageSrc: variant.imageSrc,
+            },
+          });
+        }
       })
     }),
   removeVariant: publicProcedure

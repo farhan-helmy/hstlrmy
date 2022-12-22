@@ -16,7 +16,9 @@ export interface Variant {
   variant: {
     id: string
     name: string
-    imageSrc?: string
+    imageSrc: string
+    add: boolean
+    productId: string
   }[]
 }
 
@@ -27,6 +29,8 @@ const schema = z.object({
     id: z.string(),
     name: z.string().min(1, { message: "Variant name is required" }).max(100),
     imageSrc: z.string().min(1, { message: "Variant image is required" }).max(10000),
+    add: z.boolean(),
+    productId: z.string()
   }))
 });
 
@@ -39,9 +43,11 @@ export default function EditVariant({ editVariantOpen, setEditVariantOpen, id }:
     });
 
   const product = trpc.products.getProduct.useQuery({ id });
-  const updateVariant = trpc.products.updateVariant.useMutation({
+
+  const addVariant = trpc.products.addVariant.useMutation({
     onSuccess: () => {
-      console.log('success')
+      product.refetch()
+      
     },
     onError: (err) => {
       console.log(err)
@@ -71,10 +77,10 @@ export default function EditVariant({ editVariantOpen, setEditVariantOpen, id }:
 
     setValue(`variant.${index}.imageSrc`, url);
   }
-  
+
   const onRemoveVariant = (index: number) => {
     const variantId = getValues(`variant.${index}.id`)
-    console.log(variantId)
+  
     if(variantId === "") {
       remove(index)
       return
@@ -83,21 +89,22 @@ export default function EditVariant({ editVariantOpen, setEditVariantOpen, id }:
     remove(index)
   }
 
-  const onSubmit = async (data: any) => {
-    console.log(data)
-    updateVariant.mutate(data)
+  const onSubmit = async (data: Variant) => {
+   addVariant.mutate(data)
   }
 
   useEffect(() => {
-    if (product.data) {
+    if (editVariantOpen) {
       reset();
-      product.data.variants.forEach((variant: any) => {
-        console.log(variant)
-        append({ id: variant.id, name: variant.name, imageSrc: variant.imageSrc })
-      })
+      product.data?.variants.forEach((variant: any) => {
 
+        append({ id: variant.id, name: variant.name, imageSrc: variant.imageSrc, add: false, productId: variant.productId })
+      })
     }
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editVariantOpen])
+
+  
 
   return (
     <Transition.Root show={editVariantOpen} as={Fragment}>
@@ -188,7 +195,9 @@ export default function EditVariant({ editVariantOpen, setEditVariantOpen, id }:
                             append({
                               id: "",
                               name: "",
-                              imageSrc: ""
+                              imageSrc: "",
+                              add: true,
+                              productId: id
                             })
                           }
                           type="button"
