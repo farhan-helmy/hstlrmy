@@ -11,22 +11,6 @@ export const ProductLists: FC = () => {
   const products = trpc.products.getActiveProducts.useQuery();
   const notificationStore = useNotificationStore();
 
-  const addToCart = (product: Item) => {
-    //cartStore.addToCart(product);
-    const cartItems = cartStore.items.find((item) => item.id === product.id);
-    if (cartItems) {
-      cartStore.updateQuantity(product.id, cartItems.quantity + 1);
-    } else {
-      cartStore.addToCart(product)
-    }
-    notificationStore.showNotification({
-      title: "Added to cart",
-      message: `${product.name} has been added to your cart`,
-      success: true,
-      show: true
-    });
-  }
-
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">

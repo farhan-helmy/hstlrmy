@@ -56,25 +56,10 @@ export default function ProductPage() {
   // nextjs get id from url
   const { id } = useRouter().query;
 
-  const productz = trpc.products.getProduct.useQuery({ id });
-  const images = trpc.products.getImages.useQuery({ id });
-  const notificationStore = useNotificationStore();
+  const productz = trpc.products.getProduct.useQuery({ id: id as string });
+  const images = trpc.products.getImages.useQuery({ id: id as string });
 
-  const addToCart = (product: Item) => {
-    //cartStore.addToCart(product);
-    const cartItems = cartStore.items.find((item) => item.id === product.id);
-    if (cartItems) {
-      cartStore.updateQuantity(product.id, cartItems.quantity + 1);
-    } else {
-      cartStore.addToCart(product)
-    }
-    notificationStore.showNotification({
-      title: "Added to cart",
-      message: `${product.name} has been added to your cart`,
-      success: true,
-      show: true
-    });
-  }
+  const notificationStore = useNotificationStore();
 
   const buyNow = (product: Item) => {
     cartStore.addToCart(product);
