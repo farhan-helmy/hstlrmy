@@ -87,6 +87,31 @@ export const productRouter = router({
       });
       return products;
     }),
+  getImages: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const images = await ctx.prisma.product.findMany({
+        where: {
+          id: input?.id
+        },
+        include: {
+          images: {
+            select: {
+              id: true,
+              src: true,
+              alt: true
+            }
+          },
+          variants: {
+            select: {
+              id: true,
+              imageSrc: true
+          }
+        }
+      }
+      });
+      return images;
+    }),
   productById: publicProcedure
     .input(z.object({ id: z.string().nullish() }).nullish())
     .query(({ input }) => {

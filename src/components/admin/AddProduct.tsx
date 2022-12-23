@@ -33,7 +33,7 @@ const schema = z.object({
   name: z.string().min(1, { message: "Name is required" }).max(100),
   price: z.string().min(1, { message: "Price is required" }).max(100),
   weight: z.string().min(1, { message: "Weight is required" }).max(100),
-  description: z.string().min(1, { message: "Description is required" }).max(100),
+  description: z.string().min(1, { message: "Description is required" }),
   imageSrc: z.string().min(1, { message: "Image is required" }).max(10000),
   variant: z.array(z.object({
     name: z.string().min(1, { message: "Variant name is required" }).max(100),

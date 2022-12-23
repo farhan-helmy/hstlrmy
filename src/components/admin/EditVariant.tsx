@@ -87,6 +87,7 @@ export default function EditVariant({ editVariantOpen, setEditVariantOpen, id }:
     }
     removeVariant.mutate({id: variantId})
     remove(index)
+    product.refetch()
   }
 
   const onSubmit = async (data: Variant) => {

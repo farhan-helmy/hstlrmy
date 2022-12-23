@@ -35,7 +35,7 @@ const schema = z.object({
   name: z.string(),
   price: z.string(),
   weight: z.string().min(1, { message: "Weight is required" }).max(100),
-  description: z.string().min(1, { message: "Description is required" }).max(100),
+  description: z.string().min(1, { message: "Description is required" }),
   imageSrc: z.string().min(1, { message: "Image is required" }).max(10000),
 })
 

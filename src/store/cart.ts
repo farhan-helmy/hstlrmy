@@ -2,12 +2,13 @@ import create from 'zustand'
 import { persist } from 'zustand/middleware'
 
 export interface Item {
-  id: string,
+  id?: string,
   name: string,
   href: string,
   price: string,
   imageSrc: string,
   imageAlt: string,
+  variant?: string,
   quantity: number
 }
 
@@ -31,7 +32,7 @@ const useCartStore = create<CartState>()(
       ({
         items: [...state.items, item],
         totalPrice: state.totalPrice + parseFloat(item.price),
-        totalItems: state.totalItems + 1
+        totalItems: state.totalItems + item.quantity
       })),
       removeAllItemsFromCart: () => set(() => ({ items: [], totalItems: 0, totalPrice: 0 })),
       removeOneItemFromCart: (id) => set((state) => ({

@@ -14,76 +14,111 @@
   }
   ```
 */
-import { useState } from 'react'
-import { Disclosure, RadioGroup, Tab } from '@headlessui/react'
-import { StarIcon } from '@heroicons/react/20/solid'
-import { MinusIcon, PlusIcon } from '@heroicons/react/24/outline'
+import { useEffect, useState } from 'react'
+import { RadioGroup, Tab } from '@headlessui/react'
+import { HeartIcon } from '@heroicons/react/20/solid'
 import NavBar from '../../components/NavBar'
+import type { Item } from '../../store/cart';
+import useCartStore from '../../store/cart'
+import { trpc } from '../../utils/trpc'
+import useNotificationStore from '../../store/notification'
+import router, { useRouter } from 'next/router'
 
-const product = {
-  name: 'Basic Tee',
-  price: '$35',
-  rating: 3.9,
-  reviewCount: 512,
-  href: '#',
-  images: [
-    {
-      id: 1,
-      imageSrc: 'https://tailwindui.com/img/ecommerce-images/product-page-01-featured-product-shot.jpg',
-      imageAlt: "Back of women's Basic Tee in black.",
-      primary: true,
-    },
-    {
-      id: 2,
-      imageSrc: 'https://tailwindui.com/img/ecommerce-images/product-page-01-product-shot-01.jpg',
-      imageAlt: "Side profile of women's Basic Tee in black.",
-      primary: false,
-    },
-    {
-      id: 3,
-      imageSrc: 'https://tailwindui.com/img/ecommerce-images/product-page-01-product-shot-02.jpg',
-      imageAlt: "Front of women's Basic Tee in black.",
-      primary: false,
-    },
-  ],
-  colors: [
-    { name: 'Black', bgColor: 'bg-gray-900', selectedColor: 'ring-gray-900' },
-    { name: 'Heather Grey', bgColor: 'bg-gray-400', selectedColor: 'ring-gray-400' },
-  ],
-  sizes: [
-    { name: 'XXS', inStock: true },
-    { name: 'XS', inStock: true },
-    { name: 'S', inStock: true },
-    { name: 'M', inStock: true },
-    { name: 'L', inStock: true },
-    { name: 'XL', inStock: false },
-  ],
-  description: `
-    <p>The Basic tee is an honest new take on a classic. The tee uses super soft, pre-shrunk cotton for true comfort and a dependable fit. They are hand cut and sewn locally, with a special dye technique that gives each tee it's own look.</p>
-    <p>Looking to stock your closet? The Basic tee also comes in a 3-pack or 5-pack at a bundle discount.</p>
-  `,
-  details: [
-    {
-      name: 'Features',
-      items: [
-        'Multiple strap configurations',
-        'Spacious interior with top zip',
-        'Leather handle and tabs',
-        'Interior dividers',
-        'Stainless strap loops',
-        'Double stitched construction',
-        'Water-resistant',
-      ],
-    },
-  ]
-}
+
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Example() {
-  const [selectedColor, setSelectedColor] = useState(product.colors[0])
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2])
+export type ImageCollection = {
+  id: string
+  src: string,
+  alt?: string,
+  name: string
+}
+
+export type SelectedImage = {
+  src?: string
+  alt?: string
+}
+
+export type CheckoutVariant = {
+  id: string
+  name: string
+}
+export default function ProductPage() {
+  const [selectedVariant, setSelectedVariant] = useState(null)
+  const [selectedImage, setSelectedImage] = useState<SelectedImage>()
+  const [imageCollections, setImageCollections] = useState<ImageCollection[]>([])
+  const [quantity, setQuantity] = useState(1)
+  const [checkoutVariant, setCheckoutVariant] = useState<CheckoutVariant>()
+
+  const cartStore = useCartStore();
+  // nextjs get id from url
+  const { id } = useRouter().query;
+
+  const productz = trpc.products.getProduct.useQuery({ id });
+  const images = trpc.products.getImages.useQuery({ id });
+  const notificationStore = useNotificationStore();
+
+  const addToCart = (product: Item) => {
+    //cartStore.addToCart(product);
+    const cartItems = cartStore.items.find((item) => item.id === product.id);
+    if (cartItems) {
+      cartStore.updateQuantity(product.id, cartItems.quantity + 1);
+    } else {
+      cartStore.addToCart(product)
+    }
+    notificationStore.showNotification({
+      title: "Added to cart",
+      message: `${product.name} has been added to your cart`,
+      success: true,
+      show: true
+    });
+  }
+
+  const buyNow = (product: Item) => {
+    cartStore.addToCart(product);
+    notificationStore.showNotification({
+      title: "Added to cart",
+      message: `${product.name} has been added to your cart`,
+      success: true,
+      show: true
+    });
+    router.push('/checkout')
+  }
+
+
+  const setForCheckout = (variants: ImageCollection) => {
+    setSelectedImage({ src: variants.src as string, alt: variants.name })
+    setCheckoutVariant({id: variants.id, name: variants.name})
+  }
+
+  useEffect(() => {
+    if (images.data) {
+      const imageCollection: any[] = [];
+      images.data.forEach((image) => {
+        image.images.forEach((img) => {
+          imageCollection.push({
+            id: image.id,
+            src: img.src,
+            alt: img.alt
+          })
+          setSelectedImage({
+            src: img.src,
+            alt: img.alt
+          })
+        })
+        image.variants.forEach((variant) => {
+          imageCollection.push({
+            id: variant.id,
+            src: variant.imageSrc
+          })
+        })
+      })
+      setImageCollections(imageCollection)
+    }
+  }, [images.data])
+
 
   return (
     <>
@@ -96,7 +131,7 @@ export default function Example() {
               {/* Image selector */}
               <div className="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                 <Tab.List className="grid grid-cols-4 gap-6">
-                  {product.images.map((image) => (
+                  {imageCollections.map((image) => (
                     <Tab
                       key={image.id}
                       className="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
@@ -104,8 +139,8 @@ export default function Example() {
                       {({ selected }) => (
                         <>
                           <span className="sr-only"> {image.id} </span>
-                          <span className="absolute inset-0 overflow-hidden rounded-md">
-                            <img src={image.imageSrc} alt="" className="h-full w-full object-cover object-center" />
+                          <span className="absolute inset-0 overflow-hidden rounded-md" onClick={() => setSelectedImage({ src: image.src, alt: image.alt })}>
+                            <img src={image.src} alt={image.alt} className="h-full w-full object-cover object-center" />
                           </span>
                           <span
                             className={classNames(
@@ -122,59 +157,39 @@ export default function Example() {
               </div>
 
               <Tab.Panels className="aspect-w-1 aspect-h-1 w-full">
-                {product.images.map((image) => (
-                  <Tab.Panel key={image.id}>
-                    <img
-                      src={image.imageSrc}
-                      alt={image.imageAlt}
-                      className="h-full w-full object-cover object-center sm:rounded-lg"
-                    />
-                  </Tab.Panel>
-                ))}
+
+                <img
+                  src={selectedImage?.src}
+                  alt={selectedImage?.alt}
+                  className="h-full w-full object-cover object-center sm:rounded-lg"
+                />
+
               </Tab.Panels>
             </Tab.Group>
 
             {/* Product info */}
             <div className="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">{product.name}</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">{productz.data?.name}</h1>
 
               <div className="mt-3">
                 <h2 className="sr-only">Product information</h2>
-                <p className="text-3xl tracking-tight text-gray-900">{product.price}</p>
+                <p className="text-3xl tracking-tight text-gray-900">RM {productz.data?.price}</p>
               </div>
 
               {/* Reviews */}
-              <div className="mt-3">
-                <h3 className="sr-only">Reviews</h3>
-                <div className="flex items-center">
-                  <div className="flex items-center">
-                    {[0, 1, 2, 3, 4].map((rating) => (
-                      <StarIcon
-                        key={rating}
-                        className={classNames(
-                          product.rating > rating ? 'text-indigo-500' : 'text-gray-300',
-                          'h-5 w-5 flex-shrink-0'
-                        )}
-                        aria-hidden="true"
-                      />
-                    ))}
-                  </div>
-                  <p className="sr-only">{product.rating} out of 5 stars</p>
-                </div>
-              </div>
 
               <div className="mt-6">
+
                 <h3 className="sr-only">Description</h3>
 
-                <div
-                  className="space-y-6 text-base text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: product.description }}
-                />
+                <article className="prose">
+                  {productz.data?.description}
+                </article>
               </div>
 
               <form>
                 {/* Color picker */}
-                <div>
+                {/* <div>
                   <h2 className="text-sm font-medium text-gray-900">Color</h2>
 
                   <RadioGroup value={selectedColor} onChange={setSelectedColor} className="mt-2">
@@ -208,27 +223,25 @@ export default function Example() {
                       ))}
                     </div>
                   </RadioGroup>
-                </div>
+                </div> */}
 
                 {/* Size picker */}
                 <div className="mt-8">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-medium text-gray-900">Size</h2>
-                    <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                      See sizing chart
-                    </a>
+                    <h2 className="text-sm font-medium text-gray-900">Colour</h2>
+
                   </div>
 
-                  <RadioGroup value={selectedSize} onChange={setSelectedSize} className="mt-2">
+                  <RadioGroup value={selectedVariant} onChange={setSelectedVariant} className="mt-2">
                     <RadioGroup.Label className="sr-only"> Choose a size </RadioGroup.Label>
                     <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-                      {product.sizes.map((size) => (
+                      {productz.data?.variants.map((variants) => (
                         <RadioGroup.Option
-                          key={size.name}
-                          value={size}
+                          key={variants.name}
+                          value={variants}
                           className={({ active, checked }) =>
                             classNames(
-                              size.inStock ? 'cursor-pointer focus:outline-none' : 'opacity-25 cursor-not-allowed',
+                              variants ? 'cursor-pointer focus:outline-none' : 'opacity-25 cursor-not-allowed',
                               active ? 'ring-2 ring-offset-2 ring-indigo-500' : '',
                               checked
                                 ? 'bg-indigo-600 border-transparent text-white hover:bg-indigo-700'
@@ -236,23 +249,87 @@ export default function Example() {
                               'border rounded-md py-3 px-3 flex items-center justify-center text-sm font-medium uppercase sm:flex-1'
                             )
                           }
-                          disabled={!size.inStock}
+                          disabled={!variants}
+                          onClick={() => setForCheckout({ id: variants.id, src: variants.imageSrc as string, alt: variants.name, name: variants.name })}
+
                         >
-                          <RadioGroup.Label as="span">{size.name}</RadioGroup.Label>
+                          <RadioGroup.Label as="span">{variants.name}</RadioGroup.Label>
                         </RadioGroup.Option>
                       ))}
                     </div>
                   </RadioGroup>
+
+                </div>
+                {/* Quantity picker */}
+                {selectedVariant && (
+                  <div className="mt-4">
+                    <label htmlFor="quantity" className="sr-only">
+                      Quantity
+                    </label>
+                    <select
+                      onChange={(e) => setQuantity(parseInt(e.target.value))}
+                      id="quantity"
+                      name="quantity"
+                      className="rounded-md border border-gray-300 text-left text-base font-medium text-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                    >
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
+                      <option value={4}>4</option>
+                      <option value={5}>5</option>
+                      <option value={6}>6</option>
+                      <option value={7}>7</option>
+                      <option value={8}>8</option>
+                    </select>
+                  </div>
+                )}
+
+                {/* <button className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onClick={() => addToCart({
+                  name: productz.data?.name as string,
+                  id: product.id,
+                  price: product.price,
+                  quantity: 1,
+                  imageSrc: product.imageSrc,
+                  imageAlt: product.imageAlt,
+                  href: ""
+                })}>
+                  Add to cart
+                </button> */}
+                <div className="sm:flex-col1 mt-10 flex">
+                  <button
+                    type="submit"
+                    className="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:w-full"
+                  >
+                    Add to bag
+                  </button>
+                  <button
+                    type="button"
+                    className="ml-4 flex items-center justify-center rounded-md py-3 px-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+                  >
+                    <HeartIcon className="h-6 w-6 flex-shrink-0" aria-hidden="true" />
+                    <span className="sr-only">Add to favorites</span>
+                  </button>
                 </div>
 
-                <button
-                  type="submit"
-                  className="mt-8 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Add to cart
-                </button>
+                <div className="sm:flex-col1 mt-2 flex">
+                  <button
+                    onClick={() => buyNow({
+                      name: productz.data?.name as string,
+                      id: productz.data?.id,
+                      price: productz.data?.price as unknown as string,
+                      quantity: quantity,
+                      imageSrc: productz.data?.images[0]?.src as string,
+                      imageAlt: productz.data?.images[0]?.alt as string,
+                      href: "",
+                      variant: checkoutVariant?.name
+                    })}
+                    className="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-slate-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:w-full"
+                  >
+                    Buy Now
+                  </button>
+                </div>
               </form>
-              <section aria-labelledby="details-heading" className="mt-12">
+              {/* <section aria-labelledby="details-heading" className="mt-12">
                 <h2 id="details-heading" className="sr-only">
                   Additional details
                 </h2>
@@ -296,12 +373,12 @@ export default function Example() {
                     </Disclosure>
                   ))}
                 </div>
-              </section>
+              </section> */}
             </div>
           </div>
         </div>
       </div>
     </>
-   
+
   )
 }
