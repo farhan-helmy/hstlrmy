@@ -67,9 +67,9 @@ export const productRouter = router({
             select: {
               id: true,
               imageSrc: true
+            }
           }
         }
-      }
       });
       return images;
     }),
@@ -206,7 +206,41 @@ export const productRouter = router({
           id: input?.id,
         },
       });
-    }
-    ),
+    }),
+  setBannerText: publicProcedure
+    .input(z.object({
+      name: z.string(),
+      value: z.string()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.settings.upsert({
+        where: {
+          name: input?.name,
+        },
+        update: {
+          value: input?.value,
+        },
+        create: {
+          name: input?.name,
+          value: input?.value,
+        }
+      });
+
+    }),
+  getBannerText: publicProcedure
+    .query(async ({ ctx }) => {
+      try {
+        const bannerText = await ctx.prisma.settings.findUnique({
+          where: {
+            name: "banner"
+          }
+        });
+        return bannerText;
+      } catch (e) {
+        console.log(e);
+        return null
+      }
+    }),
+
 });
 

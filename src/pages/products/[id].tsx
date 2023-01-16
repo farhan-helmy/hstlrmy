@@ -23,7 +23,7 @@ import useCartStore from '../../store/cart'
 import { trpc } from '../../utils/trpc'
 import useNotificationStore from '../../store/notification'
 import router, { useRouter } from 'next/router'
-
+import Notification from "../../components/Notification";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -44,6 +44,7 @@ export type SelectedImage = {
 export type CheckoutVariant = {
   id: string
   name: string
+  imageSrc: string
 }
 export default function ProductPage() {
   const [selectedVariant, setSelectedVariant] = useState(null)
@@ -62,20 +63,46 @@ export default function ProductPage() {
   const notificationStore = useNotificationStore();
 
   const buyNow = (product: Item) => {
-    cartStore.addToCart(product);
-    notificationStore.showNotification({
-      title: "Added to cart",
-      message: `${product.name} has been added to your cart`,
-      success: true,
-      show: true
-    });
-    router.push('/checkout')
+
+    console.log(product.variant)
+    if (product.variant) {
+      cartStore.addToCart(product)
+      router.push('/checkout')
+    }else{
+      notificationStore.showNotification({
+        title: "Error!",
+        message: `Please choose product type`,
+        success: false,
+        show: true
+      });
+    }
+  }
+
+  const addToCart = (e: any, product: Item) => {
+    if (product.variant) {
+      e.preventDefault()
+      cartStore.addToCart(product)
+      notificationStore.showNotification({
+        title: "Success!",
+        message: `${product.name} added to cart`,
+        success: true,
+        show: true
+      });
+    }else{
+      e.preventDefault()
+      notificationStore.showNotification({
+        title: "Error!",
+        message: `Please choose product type`,
+        success: false,
+        show: true
+      });
+    }
   }
 
 
   const setForCheckout = (variants: ImageCollection) => {
     setSelectedImage({ src: variants.src as string, alt: variants.name })
-    setCheckoutVariant({id: variants.id, name: variants.name})
+    setCheckoutVariant({ id: variants.id, name: variants.name, imageSrc: variants.src as string })
   }
 
   useEffect(() => {
@@ -167,9 +194,8 @@ export default function ProductPage() {
 
                 <h3 className="sr-only">Description</h3>
 
-                <article className="prose">
-                  {productz.data?.description}
-                </article>
+                <div className="prose" dangerouslySetInnerHTML={{ __html: productz.data?.description as string }} />
+                 
               </div>
 
               <form>
@@ -235,7 +261,7 @@ export default function ProductPage() {
                             )
                           }
                           disabled={!variants}
-                          onClick={() => setForCheckout({ id: variants.id, src: variants.imageSrc as string, alt: variants.name, name: variants.name })}
+                          onClick={() => setForCheckout({ id: variants.id, src: variants.imageSrc as string, alt: variants.name, name: productz.data?.name + " " + "("+ variants.name + ")" })}
 
                         >
                           <RadioGroup.Label as="span">{variants.name}</RadioGroup.Label>
@@ -282,7 +308,17 @@ export default function ProductPage() {
                 </button> */}
                 <div className="sm:flex-col1 mt-10 flex">
                   <button
-                    type="submit"
+                    onClick={(e) => addToCart(e, {
+                      name:  checkoutVariant?.name as string,
+                      id: checkoutVariant?.id,
+                      price: productz.data?.price as unknown as string,
+                      quantity: quantity,
+                      imageSrc: checkoutVariant?.imageSrc as string,
+                      imageAlt: checkoutVariant?.name as string,
+                      href: "",
+                      variant: checkoutVariant?.name
+                    })}
+
                     className="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:w-full"
                   >
                     Add to bag
@@ -296,24 +332,25 @@ export default function ProductPage() {
                   </button>
                 </div>
 
-                <div className="sm:flex-col1 mt-2 flex">
-                  <button
-                    onClick={() => buyNow({
-                      name: productz.data?.name as string,
-                      id: productz.data?.id,
-                      price: productz.data?.price as unknown as string,
-                      quantity: quantity,
-                      imageSrc: productz.data?.images[0]?.src as string,
-                      imageAlt: productz.data?.images[0]?.alt as string,
-                      href: "",
-                      variant: checkoutVariant?.name
-                    })}
-                    className="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-slate-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:w-full"
-                  >
-                    Buy Now
-                  </button>
-                </div>
+
               </form>
+              <div className="sm:flex-col1 mt-2 flex">
+                <button
+                  onClick={() => buyNow({
+                    name: productz.data?.name as string,
+                    id: productz.data?.id,
+                    price: productz.data?.price as unknown as string,
+                    quantity: quantity,
+                    imageSrc: checkoutVariant?.imageSrc as string,
+                    imageAlt: checkoutVariant?.name as string,
+                    href: "",
+                    variant: checkoutVariant?.name
+                  })}
+                  className="flex max-w-xs flex-1 items-center justify-center rounded-md border border-transparent bg-slate-600 py-3 px-8 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 sm:w-full"
+                >
+                  Buy Now
+                </button>
+              </div>
               {/* <section aria-labelledby="details-heading" className="mt-12">
                 <h2 id="details-heading" className="sr-only">
                   Additional details
@@ -363,6 +400,7 @@ export default function ProductPage() {
           </div>
         </div>
       </div>
+      <Notification show={notificationStore.show} title={notificationStore.title} message={notificationStore.message} success={notificationStore.success} />
     </>
 
   )

@@ -14,7 +14,7 @@
   ```
 */
 
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition, Listbox } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon, ExclamationCircleIcon } from '@heroicons/react/20/solid'
 import type { SubmitHandler } from 'react-hook-form';
@@ -23,6 +23,8 @@ import { useS3Upload } from 'next-s3-upload';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { trpc } from '../../utils/trpc';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 type AddProductProps = {
   open: boolean
@@ -62,6 +64,7 @@ const classNames = (...classes: string[]) => {
 }
 
 export default function AddProduct({ open, setOpen }: AddProductProps) {
+  const ReactQuill = typeof window === 'object' ? require('react-quill') : () => false;
 
   const addProduct = trpc.products.addProduct.useMutation();
 
@@ -73,6 +76,7 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
   })
 
   const [selectedVariantType, setSelectedVariantType] = useState(variantTypes[0])
+  const [description, setDescription] = useState('')
 
   const { uploadToS3 } = useS3Upload();
 
@@ -97,8 +101,11 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
     addProduct.mutate(data);
   };
 
+  useEffect(() => {
+    setValue('description', description)
+  }, [description, setValue])
   return (
-   
+
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
         <Transition.Child
@@ -152,7 +159,6 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                             </div>}
                           </div>
                           <p className="mt-2 text-sm text-red-600">{errors.name?.message}</p>
-
                         </div>
                         <div className="sm:col-span-3">
                           <label htmlFor="price" className="block text-sm font-medium text-gray-700">
@@ -168,6 +174,8 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                               className="block w-full rounded-md border-gray-300 pl-9 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                               placeholder="0.00"
                               aria-describedby="price-currency"
+                              min="1"
+                              step="any"
                             />
                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                               <span className="text-gray-500 sm:text-sm" id="price-currency">
@@ -204,12 +212,14 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                             Description
                           </label>
                           <div className="mt-1">
-                            <textarea
+                            {/* <textarea
                               {...register("description", { required: true })}
                               rows={3}
                               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                               defaultValue={''}
-                            />
+                            /> */}
+                            <ReactQuill theme="snow" value={description} onChange={setDescription}/>
+                            <textarea className='hidden' {...register("description", { required: false })} value={description} />
                           </div>
                           <p className="mt-2 text-sm text-gray-500">Enter product description.</p>
                           <p className="mt-2 text-sm text-red-600">{errors.description?.message}</p>
@@ -403,10 +413,12 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                       >
                         Cancel
                       </button>
-                      <input
+                      <button
                         type="submit"
                         className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                      />
+                      >
+                        Submit
+                      </button>
                     </div>
                   </div>
                 </form>
@@ -417,6 +429,6 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
 
       </Dialog>
     </Transition.Root>
- 
+
   )
 }

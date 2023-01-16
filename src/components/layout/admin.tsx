@@ -22,6 +22,7 @@ import {
   ArchiveBoxIcon,
   HomeIcon,
   XMarkIcon,
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useRouter } from 'next/router'
@@ -48,6 +49,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: router.pathname === '/admin/dashboard' },
     { name: 'Products', href: '/admin/products', icon: ArchiveBoxIcon, current: router.pathname === '/admin/products' },
+    { name: 'Orders', href: '/admin/orders', icon: PaperAirplaneIcon, current: router.pathname === '/admin/orders' },
   ]
   return (
     <>

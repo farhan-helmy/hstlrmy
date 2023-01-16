@@ -30,9 +30,13 @@ const useCartStore = create<CartState>()(
       totalPrice: 0,
       addToCart: (item) => set((state) =>
       ({
-        items: [...state.items, item],
-        totalPrice: state.totalPrice + parseFloat(item.price),
-        totalItems: state.totalItems + item.quantity
+        // if item already exist just add quantity
+        items: state.items.find((i) => i.id === item.id)
+          ? state.items.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i)
+          : [...state.items, item],
+        // update total price and total items
+        totalItems: state.totalItems + item.quantity,
+        totalPrice: state.totalPrice + (parseFloat(item.price) * item.quantity)
       })),
       removeAllItemsFromCart: () => set(() => ({ items: [], totalItems: 0, totalPrice: 0 })),
       removeOneItemFromCart: (id) => set((state) => ({

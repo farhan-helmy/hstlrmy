@@ -34,6 +34,16 @@ export const SideShoppingCart = ({ cartOpen, setOpen, setCartOpen }: SideShoppin
     cartStore.removeOneItemFromCart(id)
   }
 
+  const calculateTotalPrice = () => {
+    let total = 0
+    cartItems.forEach(item => {
+      total += parseFloat(item.price) * item.quantity
+    })
+    // round off total
+    total = Math.round(total * 100) / 100
+    return total
+  }
+
   return (
     <Transition.Root show={cartOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -102,7 +112,7 @@ export const SideShoppingCart = ({ cartOpen, setOpen, setCartOpen }: SideShoppin
                                     <p className="mt-1 text-sm text-gray-500"></p>
                                   </div>
                                   <div className="flex flex-1 items-end justify-between text-sm">
-                                    <p className="text-gray-500">Qty {product.quantity}</p>
+                                    <p className="text-gray-500">x{product.quantity}</p>
 
                                     <div className="flex">
                                       {/* <button
@@ -134,7 +144,7 @@ export const SideShoppingCart = ({ cartOpen, setOpen, setCartOpen }: SideShoppin
                     <div className="border-t border-gray-200 py-6 px-4 sm:px-6">
                       <div className="flex justify-between text-base font-medium text-gray-900">
                         <p>Subtotal</p>
-                        <p>RM {totalPrice}</p>
+                        <p>RM {calculateTotalPrice()}</p>
                       </div>
                       <p className="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
                       <div className="mt-6">

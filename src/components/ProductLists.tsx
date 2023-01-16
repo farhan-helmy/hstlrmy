@@ -1,21 +1,23 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import type { FC } from "react"
-import type { Item } from "../store/cart";
-import useCartStore from "../store/cart";
-import useNotificationStore from "../store/notification";
 import { trpc } from "../utils/trpc";
 
 export const ProductLists: FC = () => {
-  const cartStore = useCartStore();
   const products = trpc.products.getActiveProducts.useQuery();
-  const notificationStore = useNotificationStore();
 
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
         <h2 className="sr-only">Products</h2>
+        {products.isLoading && (
+          // loading spinner using tailwind
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-8 border-gray-900"></div>
+          </div>
 
+        )}
+        
         <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
           {products.data?.map((product) => (
             <div key={product.id} className="group">

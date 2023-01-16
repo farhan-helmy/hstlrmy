@@ -4,13 +4,17 @@ import { exampleRouter } from "./example";
 import { paymentRouter } from "./payment";
 import { productRouter } from "./product";
 import { shipmentRouter } from "./shipment";
+import { leadsRouter } from "./leads";
+import { orderRouter } from "./order";
 
 export const appRouter = router({
   example: exampleRouter,
   auth: authRouter,
   products: productRouter,
   shipment: shipmentRouter,
-  payment: paymentRouter
+  payment: paymentRouter,
+  leads: leadsRouter,
+  orders: orderRouter
 });
 
 // export type definition of API

@@ -21,14 +21,15 @@ model Example {
 }
 
 model Variant {
-  id        String  @id @default(cuid())
-  name      String
-  type      String // color, size, etc
-  price     Int?
-  imageSrc  String?
-  imageAlt  String?
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
+  id               String             @id @default(cuid())
+  name             String
+  type             String // color, size, etc
+  price            Int?
+  imageSrc         String?
+  imageAlt         String?
+  product          Product            @relation(fields: [productId], references: [id])
+  productId        String
+  VariantsOnOrders VariantsOnOrders[]
 }
 
 model Product {
@@ -36,12 +37,50 @@ model Product {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   name        String?
-  price       Int?
+  price       Float?
   weight      Int?
   description String?
   isActive    Boolean   @default(true)
   variants    Variant[]
   images      Images[]
+}
+
+// model Categories {
+//   id       String    @id @default(cuid())
+//   name     String
+//   products Product[]
+// }
+
+model Order {
+  id               String             @id @default(cuid())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  name             String
+  phone            String
+  address          String
+  address2         String?
+  city             String
+  state            String
+  postalCode       String
+  country          String
+  status           String             @default("pending")
+  totalPrice       Int?               @default(0)
+  count            Int?               @default(autoincrement())
+  VariantsOnOrders VariantsOnOrders[]
+}
+
+model ProductsOnOrder {
+  id String @id @default(cuid())
+}
+
+model VariantsOnOrders {
+  variant   Variant @relation(fields: [variantId], references: [id])
+  variantId String // relation scalar field (used in the `@relation` attribute above)
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   String // relation scalar field (used in the `@relation` attribute above)
+  quantity  Int
+
+  @@id([variantId, orderId])
 }
 
 model Images {
@@ -71,6 +110,12 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model Settings {
+  id    String @id @default(cuid())
+  name  String @unique
+  value String
 }
 
 model Session {

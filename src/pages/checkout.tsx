@@ -15,7 +15,7 @@
 */
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { RadioGroup, Transition } from '@headlessui/react'
-import { CheckCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { CheckCircleIcon, ExclamationCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from 'next'
 import { checkPhoneNumber, securepaySign } from '../helper/utils'
 import Alert from '../components/Alerts'
@@ -24,29 +24,15 @@ import type { Item } from '../store/cart';
 import { trpc } from '../utils/trpc'
 import { env } from '../env/client.mjs'
 import useCartStore from '../store/cart'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import type { SubmitHandler } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { sendOrderWhatsapp } from '../server/common/whatsappapi'
 
-
-const products = [
-  {
-    id: 1,
-    title: 'Basic Tee',
-    href: '#',
-    price: '$32.00',
-    color: 'Black',
-    size: 'Large',
-    imageSrc: 'https://tailwindui.com/img/ecommerce-images/checkout-page-02-product-01.jpg',
-    imageAlt: "Front of men's Basic Tee in black.",
-  },
-  // More products...
-]
 const deliveryMethods = [
   { id: 1, title: 'Standard', turnaround: '3–4 business days', price: 'RM 5.50' },
 ]
-// const paymentMethods = [
-//   { id: 'credit-card', title: 'Credit card' },
-//   { id: 'paypal', title: 'PayPal' },
-//   { id: 'etransfer', title: 'eTransfer' },
-// ]
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -63,10 +49,28 @@ interface CheckoutData {
   order_number: string
 }
 
+export const schema = z.object({
+  leadName: z.string().min(1).max(50),
+  phoneNumber: z.string().min(1,).max(15),
+  address: z.string().min(1, { message: "Address is required" }).max(1000),
+  address2: z.string().min(1, { message: "Address2 is required" }).max(1000),
+  city: z.string().min(1, { message: "City is required" }).max(50),
+  state: z.string().min(1, { message: "State is required" }).max(100),
+  country: z.string().min(1, { message: "Country is required" }).max(100),
+  postalCode: z.string().min(1, { message: "Postal code is required" }).max(100),
+  variants: z.array(z.object({
+    id: z.string(),
+    quantity: z.number(),
+  }))
+})
+
+
 const Checkout: NextPage = () => {
   const [openShippingInformation, setOpenShippingInformation] = useState(false)
+  const [openNameInformation, setOpenNameInformation] = useState(false)
   const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState(deliveryMethods[0])
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [leadName, setLeadName] = useState('')
   const [notification, setNotification] = useState<NotificationProps>({ title: '', message: '', success: false, show: false })
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
     email: '',
@@ -81,19 +85,34 @@ const Checkout: NextPage = () => {
   const [confirmOrder, setConfirmOrder] = useState(false)
   const [cartItems, setCartItems] = useState<Item[]>([])
   const [totalPrice, setTotalPrice] = useState(0)
+  const [finalStep, setFinalStep] = useState(false)
   const itemState = useCartStore(state => state.items);
   const totalPriceState = useCartStore(state => state.totalPrice);
+  const sendMail = trpc.leads.sendEmail.useMutation()
+  const sendWhatsapp = trpc.leads.sendWhatsapp.useMutation()
+  const addOrder = trpc.orders.addOrder.useMutation()
+  const sendWhatsappOrder = trpc.orders.sendWhatsappOrder.useMutation()
 
   useEffect(() => {
     setCartItems(itemState)
     setTotalPrice(totalPriceState)
   }, [itemState, totalPriceState])
 
-  const formRef = useRef<HTMLFormElement>(null);
 
-  const continueShippingInformation = () => {
+  const calculateTotalPrice = () => {
+    let total = 0
+    cartItems.forEach(item => {
+      total += parseFloat(item.price) * item.quantity
+    })
+    // round off total
+    total = Math.round(total * 100) / 100
+    return total
+  }
+
+  const continueNameInformation = (e: any) => {
+    e.preventDefault()
     if (checkPhoneNumber(phoneNumber)) {
-      setOpenShippingInformation(true)
+      setOpenNameInformation(true)
     } else {
       setNotification({
         title: 'Please enter a valid phone number',
@@ -109,28 +128,55 @@ const Checkout: NextPage = () => {
           success: false,
           show: false,
         })
-      }
-        , 2000)
+      }, 2000)
     }
+  }
+
+  const submitLeads = async (e: any) => {
+    e.preventDefault()
+    // submit data using whatsapp api
+    sendMail.mutateAsync({
+      name: leadName,
+      phone_number: phoneNumber,
+    }).then(res => {
+      console.log(res)
+      if (res.ok) {
+        setOpenShippingInformation(true)
+        console.log(openShippingInformation)
+      }
+    })
+
+    sendWhatsapp.mutateAsync({
+      name: leadName,
+      phone_number: phoneNumber,
+    }).then(res => {
+      console.log(res)
+    }
+    )
+  }
+  const securePayformRef = useRef<HTMLFormElement>(null);
+
+  const submit = () => {
+    securePayformRef.current?.requestSubmit()
   }
 
   const checkoutItem = () => {
     const ordernum = crypto.randomUUID()
-    const amount = parseFloat('100')
+    const amount = parseFloat(calculateTotalPrice() as unknown as string)
     const sign = securepaySign({
-      email: 'farhanhlmy@gmail.com',
-      name: 'Farhan',
-      phone_no: '0123456789',
-      product_description: 'Test',
+      email: '',
+      name: leadName,
+      phone_no: phoneNumber,
+      product_description: 'This is test product',
       transaction_amount: amount,
       order_number: ordernum
     })
 
     setCheckoutData({
-      email: 'farhanhlmy@gmail.com',
-      name: 'Farhan',
-      phone_no: '0123456789',
-      product_description: 'Test',
+      email: '',
+      name: leadName,
+      phone_no: phoneNumber,
+      product_description: 'This is test product',
       transaction_amount: amount,
       token: env.NEXT_PUBLIC_SECUREPAY_AUTH_TOKEN as never,
       checksum: sign,
@@ -139,18 +185,59 @@ const Checkout: NextPage = () => {
 
     setConfirmOrder(true)
 
+  };
+
+  type CheckoutFormInput = {
+    leadName: string
+    phoneNumber: string
+    address: string
+    address2: string
+    city: string
+    state: string
+    country: string
+    postalCode: string
+    variants: {
+      id: string
+      quantity: number
+    }[]
   }
 
-  const submit = () => {
-    formRef.current?.requestSubmit()
-  }
+  const { register, handleSubmit, formState: { errors }, control } = useForm<CheckoutFormInput>({resolver: zodResolver(schema), mode: 'onBlur' });
+  const { append } = useFieldArray({
+    name: "variants",
+    control
+  })
+
+  useEffect(() => {
+    cartItems.forEach((item: any) => {
+      append({ id: item.id, quantity: item.quantity })
+    })
+  }, [append, cartItems])
+
+
+  const onSubmit: SubmitHandler<CheckoutFormInput> = data => {
+    const whatsappData: any[] = []
+    console.log(data)
+    cartItems.forEach((item: any) => {
+      console.log(item)
+      whatsappData.push(item.name)
+    })
+    addOrder.mutateAsync(data)
+    .then(async res => {
+      if (res.ok) {
+        setFinalStep(true)
+        sendWhatsappOrder.mutate({name: leadName, item: whatsappData.join(', ')})
+      }
+    })
+  };
+
   return (
-    <div className="bg-gray-100 h-screen">
+    <div className="bg-white h-full">
 
       <div className="mx-auto max-w-2xl px-4 pt-16 pb-24 sm:px-6 lg:max-w-7xl lg:px-8">
         <h2 className="sr-only">Checkout</h2>
 
-        <form onSubmit={e => e.preventDefault()} className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+        <form onSubmit={handleSubmit(onSubmit)} className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
           <div>
             <div>
               <h2 className="text-lg font-medium text-gray-900">Contact information</h2>
@@ -165,30 +252,48 @@ const Checkout: NextPage = () => {
                       Country
                     </label>
                     <select
-                      id="country"
-                      name="country"
-                      autoComplete="country"
+                      autoComplete="countryMobile"
                       className="h-full rounded-md border-transparent bg-transparent py-0 pl-3 pr-7 text-gray-500 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     >
                       <option>MY</option>
                     </select>
                   </div>
                   <input
+                    {...register("phoneNumber", { required: true })}
                     type="text"
-                    name="phone-number"
-                    id="phone-number"
                     className="block w-full rounded-md border-gray-300 pl-16 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     placeholder="+60"
                     onChange={e => setPhoneNumber(e.target.value)}
+                    disabled={openShippingInformation}
                   />
                 </div>
                 <Alert title={notification.title} success={notification.success} show={notification.show} />
-                <button
-                  onClick={() => continueShippingInformation()}
-                  className="mt-6 w-full rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
-                >
+                {openNameInformation ? (
+                  <>
+                    <label htmlFor="lead-name" className="mt-2 block text-sm font-medium text-gray-700">
+                      Name
+                    </label><div className="relative mt-1 rounded-md shadow-sm">
+                      <input
+                        {...register("leadName", { required: true })}
+                        disabled={openShippingInformation}
+                        type="text"
+
+                        className="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        onChange={e => setLeadName(e.target.value)} />
+                    </div>
+                    <button
+                      onClick={(e) => submitLeads(e)}
+                      className={openShippingInformation ? `hidden` : `mt-6 w-full rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500`}
+                    >
+                      Submit
+                    </button>
+                  </>) : <button
+                    onClick={(e) => continueNameInformation(e)}
+                    className="mt-6 w-full rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                  >
                   Continue
-                </button>
+                </button>}
+
               </div>
             </div>
             <div className="mt-10 border-t border-gray-200 pt-10">
@@ -206,62 +311,41 @@ const Checkout: NextPage = () => {
               >
 
                 <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
-                  <div>
-                    <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
-                      First name
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        id="first-name"
-                        name="first-name"
-                        autoComplete="given-name"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">
-                      Last name
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        type="text"
-                        id="last-name"
-                        name="last-name"
-                        autoComplete="family-name"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                    </div>
-                  </div>
                   <div className="sm:col-span-2">
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700">
                       Address
                     </label>
                     <div className="mt-1">
                       <input
+                        {...register("address", { required: true })}
                         type="text"
-                        name="address"
-                        id="address"
+
                         autoComplete="street-address"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
+                      {errors.address?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      </div>}
                     </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.address?.message}</p>
                   </div>
 
                   <div className="sm:col-span-2">
                     <label htmlFor="apartment" className="block text-sm font-medium text-gray-700">
-                      Apartment, suite, etc.
+                      Apartment, suite, jalan, etc.
                     </label>
                     <div className="mt-1">
                       <input
+                        {...register("address2", { required: true })}
                         type="text"
-                        name="apartment"
-                        id="apartment"
+
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
+                      {errors.address2?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      </div>}
                     </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.address2?.message}</p>
                   </div>
 
                   <div>
@@ -270,13 +354,17 @@ const Checkout: NextPage = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        {...register("city", { required: true })}
                         type="text"
-                        name="city"
-                        id="city"
+
                         autoComplete="address-level2"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
+                      {errors.city?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      </div>}
                     </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.city?.message}</p>
                   </div>
 
                   <div>
@@ -285,14 +373,18 @@ const Checkout: NextPage = () => {
                     </label>
                     <div className="mt-1">
                       <select
-                        id="country"
-                        name="country"
+                        {...register("country", { required: true })}
+
                         autoComplete="country-name"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       >
                         <option>Malaysia</option>
                       </select>
+                      {errors.country?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      </div>}
                     </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.country?.message}</p>
                   </div>
 
                   <div>
@@ -301,13 +393,17 @@ const Checkout: NextPage = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        {...register("state", { required: true })}
                         type="text"
-                        name="region"
-                        id="region"
+
                         autoComplete="address-level1"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
+                      {errors.state?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      </div>}
                     </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.state?.message}</p>
                   </div>
 
                   <div>
@@ -316,13 +412,25 @@ const Checkout: NextPage = () => {
                     </label>
                     <div className="mt-1">
                       <input
+                        {...register("postalCode", { required: true })}
                         type="text"
-                        name="postal-code"
-                        id="postal-code"
+
                         autoComplete="postal-code"
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                       />
+                      {errors.postalCode?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      </div>}
                     </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.postalCode?.message}</p>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <button
+                      type="submit"
+                      className={`mt-6 w-full rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500`}
+                    >
+                      Submit
+                    </button>
                   </div>
                 </div>
               </ Transition.Child>
@@ -422,26 +530,9 @@ const Checkout: NextPage = () => {
                       <div className="flex flex-1 items-end justify-between pt-2">
                         <p className="mt-1 text-sm font-medium text-gray-900">RM {product.price}</p>
 
-                        <div className="ml-4">
-                          <label htmlFor="quantity" className="sr-only">
-                            Quantity
-                          </label>
-                          <select
-                            id="quantity"
-                            name="quantity"
-                            className="rounded-md border border-gray-300 text-left text-base font-medium text-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
-                          >
-                            <option value={1}>1</option>
-                            <option value={2}>2</option>
-                            <option value={3}>3</option>
-                            <option value={4}>4</option>
-                            <option value={5}>5</option>
-                            <option value={6}>6</option>
-                            <option value={7}>7</option>
-                            <option value={8}>8</option>
-                          </select>
-                        </div>
+
                       </div>
+                      <p className="text-gray-500 text-sm">x{product.quantity}</p>
                     </div>
                   </li>
                 )) : <>
@@ -454,7 +545,7 @@ const Checkout: NextPage = () => {
                 cartItems.length !== 0 ? <><dl className="space-y-6 border-t border-gray-200 py-6 px-4 sm:px-6">
                   <div className="flex items-center justify-between">
                     <dt className="text-sm">Subtotal</dt>
-                    <dd className="text-sm font-medium text-gray-900">RM {totalPrice}</dd>
+                    <dd className="text-sm font-medium text-gray-900">RM {calculateTotalPrice()}</dd>
                   </div>
                   <div className="flex items-center justify-between">
                     <dt className="text-sm">Shipping</dt>
@@ -462,7 +553,7 @@ const Checkout: NextPage = () => {
                   </div>
                   <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                     <dt className="text-base font-medium">Total</dt>
-                    <dd className="text-base font-medium text-gray-900">RM {totalPrice + parseFloat('5.50')}</dd>
+                    <dd className="text-base font-medium text-gray-900">RM {calculateTotalPrice() + parseFloat('5.50')}</dd>
                   </div>
                 </dl><div className="border-t border-gray-200 py-6 px-4 sm:px-6">
                     {
@@ -476,17 +567,18 @@ const Checkout: NextPage = () => {
                         <button
                           onClick={() => checkoutItem()}
                           type="submit"
-                          className="w-full rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50"
+                          disabled={finalStep ? false : true}
+                          className={`w-full rounded-md border border-transparent ${finalStep ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-600 hover:bg-gray-700-700'} py-3 px-4 text-base font-medium text-white shadow-sm  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50`}
                         >
-                          Confirm Order
+                          {finalStep ? 'Confirm Order' : 'Please fill in all the details'}
                         </button>
                     }
                   </div></> : <></>
               }
             </div>
           </div>
-        </form>
-        <form ref={formRef} method="POST" action='https://sandbox.securepay.my/api/v1/payments'>
+        </form >
+        <form ref={securePayformRef} method="POST" action='https://sandbox.securepay.my/api/v1/payments'>
           <input type="hidden" name="buyer_name" value={checkoutData.name} />
           <input type="hidden" name="buyer_email" value={checkoutData.email} />
           <input type="hidden" name="token" value={checkoutData.token} />
@@ -507,8 +599,8 @@ const Checkout: NextPage = () => {
             value=""
           />
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
 

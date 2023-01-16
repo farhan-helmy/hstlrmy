@@ -15,11 +15,12 @@
 */
 import { Fragment, useEffect, useState } from 'react'
 import { Dialog, Popover, Tab, Transition } from '@headlessui/react'
-import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, MagnifyingGlassIcon, MegaphoneIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import type { Item } from '../store/cart';
 import useCartStore from '../store/cart'
 import { SideShoppingCart } from './SideShoppingCart';
 import Link from 'next/link';
+import { trpc } from '../utils/trpc';
 
 const navigation = {
   categories: [
@@ -152,6 +153,8 @@ export default function NavBar() {
   const [cartOpen, setCartOpen] = useState(false)
   const [cartItems, setCartItems] = useState<Item[]>([])
   const itemState = useCartStore(state => state.items);
+  const getBannerText = trpc.products.getBannerText.useQuery()
+
 
   useEffect(() => {
     setCartItems(itemState)
@@ -300,10 +303,31 @@ export default function NavBar() {
         </Transition.Root>
 
         <header className="relative bg-white">
-          <p className="flex h-10 items-center justify-center bg-gradient-to-r from-indigo-600 to-pink-500 px-4 text-sm font-medium text-white sm:px-6 lg:px-8">
-            Get free delivery on orders over $100
-          </p>
-
+          <div className="relative bg-indigo-600">
+            <div className="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
+              <div className="pr-16 sm:px-16 sm:text-center">
+                <p className="font-medium text-white">
+                  <span className="md:hidden">{getBannerText.data?.value}</span>
+                  <span className="hidden md:inline">{getBannerText.data?.value}</span>
+                  <span className="block sm:ml-2 sm:inline-block">
+                    <a href="#" className="font-bold text-white underline">
+                      Learn more
+                      <span aria-hidden="true"> &rarr;</span>
+                    </a>
+                  </span>
+                </p>
+              </div>
+              <div className="absolute inset-y-0 right-0 flex items-start pt-1 pr-1 sm:items-start sm:pt-1 sm:pr-2">
+                <button
+                  type="button"
+                  className="flex rounded-md p-2 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-white"
+                >
+                  <span className="sr-only">Dismiss</span>
+                  <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
           <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="border-b border-gray-200">
               <div className="flex h-16 items-center">

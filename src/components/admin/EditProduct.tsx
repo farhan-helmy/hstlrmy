@@ -23,6 +23,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { trpc } from '../../utils/trpc';
 import EditVariant from './EditVariant';
+import 'react-quill/dist/quill.snow.css';
+import dynamic from 'next/dynamic';
+
+const ReactQuill = dynamic(
+  () => {
+    return import('react-quill');
+  },
+  { ssr: false }
+);
 
 type EditProductProps = {
   id: string
@@ -55,6 +64,8 @@ type ProductFormInputs = {
 export default function EditProduct({ editProductOpen, setEditProductOpen, id }: EditProductProps) {
   const [editVariantOpen, setEditVariantOpen] = useState(false)
   const [productId, setProductId] = useState("")
+  const [htmlDescription, setHtmlDescription] = useState("")
+
   const updateProduct = trpc.products.updateProduct.useMutation({
     onSuccess: () => {
       setEditProductOpen(false);
@@ -91,11 +102,16 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
       setValue("price", String(product.data.price));
       setValue("weight", String(product.data.weight));
       setValue("description", product.data.description);
+      setHtmlDescription(String(product.data?.description))
       product.data.images.forEach((image: any) => {
         setValue("imageSrc", image.src);
       })
     }
-  }, [product.data])
+  }, [product.data, reset, setValue])
+
+  useEffect(() => {
+    setValue("description", htmlDescription);
+  }, [htmlDescription, product.data?.description, setValue])
 
   return (
     <>
@@ -204,12 +220,13 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                               Description
                             </label>
                             <div className="mt-1">
-                              <textarea
+                              {/* <textarea
                                 {...register("description", { required: true })}
                                 rows={3}
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 defaultValue={''}
-                              />
+                              /> */}
+                              <ReactQuill theme="snow" value={htmlDescription} onChange={setHtmlDescription} />
                             </div>
                             <p className="mt-2 text-sm text-gray-500">Enter product description.</p>
                             <p className="mt-2 text-sm text-red-600">{errors.description?.message}</p>
@@ -273,7 +290,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                           </div>
                         </div>
                       </div>
-                    
+
                     </div>
 
                     <div className="pt-5">
