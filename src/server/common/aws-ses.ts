@@ -8,8 +8,8 @@ type EmailData = {
 }
 
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.AWS_SES_KEY,
+  secretAccessKey: process.env.AWS_SES_SECRET_KEY,
   region: "ap-southeast-1",
 });
 AWS.config.getCredentials(function (error) {
