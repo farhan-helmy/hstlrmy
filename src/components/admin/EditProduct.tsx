@@ -26,7 +26,7 @@ import EditVariant from './EditVariant';
 import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 
-const ReactQuill = dynamic(
+const QuillNoSSRWrapper = dynamic(
   () => {
     return import('react-quill');
   },
@@ -102,7 +102,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
       setValue("price", String(product.data.price));
       setValue("weight", String(product.data.weight));
       setValue("description", product.data.description);
-      setHtmlDescription(String(product.data?.description))
+      setHtmlDescription(product.data?.description as string)
       product.data.images.forEach((image: any) => {
         setValue("imageSrc", image.src);
       })
@@ -226,7 +226,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                                 className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 defaultValue={''}
                               /> */}
-                              <ReactQuill theme="snow" value={htmlDescription} onChange={setHtmlDescription} />
+                              <QuillNoSSRWrapper theme="snow" value={htmlDescription} onChange={setHtmlDescription} />
                             </div>
                             <p className="mt-2 text-sm text-gray-500">Enter product description.</p>
                             <p className="mt-2 text-sm text-red-600">{errors.description?.message}</p>

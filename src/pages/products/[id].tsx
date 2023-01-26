@@ -68,7 +68,7 @@ export default function ProductPage() {
     if (product.variant) {
       cartStore.addToCart(product)
       router.push('/checkout')
-    }else{
+    } else {
       notificationStore.showNotification({
         title: "Error!",
         message: `Please choose product type`,
@@ -88,7 +88,7 @@ export default function ProductPage() {
         success: true,
         show: true
       });
-    }else{
+    } else {
       e.preventDefault()
       notificationStore.showNotification({
         title: "Error!",
@@ -194,8 +194,8 @@ export default function ProductPage() {
 
                 <h3 className="sr-only">Description</h3>
 
-                <div className="prose" dangerouslySetInnerHTML={{ __html: productz.data?.description as string }} />
-                 
+                <div dangerouslySetInnerHTML={{ __html: productz.data?.description as string }} />
+
               </div>
 
               <form>
@@ -261,7 +261,7 @@ export default function ProductPage() {
                             )
                           }
                           disabled={!variants}
-                          onClick={() => setForCheckout({ id: variants.id, src: variants.imageSrc as string, alt: variants.name, name: productz.data?.name + " " + "("+ variants.name + ")" })}
+                          onClick={() => setForCheckout({ id: variants.id, src: variants.imageSrc as string, alt: variants.name, name: productz.data?.name + " " + "(" + variants.name + ")" })}
 
                         >
                           <RadioGroup.Label as="span">{variants.name}</RadioGroup.Label>
@@ -309,7 +309,7 @@ export default function ProductPage() {
                 <div className="sm:flex-col1 mt-10 flex">
                   <button
                     onClick={(e) => addToCart(e, {
-                      name:  checkoutVariant?.name as string,
+                      name: checkoutVariant?.name as string,
                       id: checkoutVariant?.id,
                       price: productz.data?.price as unknown as string,
                       quantity: quantity,
