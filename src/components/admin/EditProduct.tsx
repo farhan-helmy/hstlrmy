@@ -17,7 +17,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useS3Upload } from 'next-s3-upload';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -25,6 +25,8 @@ import { trpc } from '../../utils/trpc';
 import EditVariant from './EditVariant';
 import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
+import ComboBox from './ComboBox';
+import type { Category } from './ComboBox';
 
 const QuillNoSSRWrapper = dynamic(
   () => {
@@ -60,11 +62,14 @@ type ProductFormInputs = {
   description: string | null
   imageSrc?: string
 }
+const categoriesSelected: any = []
+const categories: any = []
 
 export default function EditProduct({ editProductOpen, setEditProductOpen, id }: EditProductProps) {
   const [editVariantOpen, setEditVariantOpen] = useState(false)
   const [productId, setProductId] = useState("")
   const [htmlDescription, setHtmlDescription] = useState("")
+  const [submitCategory, setSubmitCategory] = useState<Category>([])
 
   const updateProduct = trpc.products.updateProduct.useMutation({
     onSuccess: () => {
@@ -74,7 +79,11 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
       console.log(err)
     }
   });
+
+  const attachProduct = trpc.products.attachProductToCategory.useMutation()
   const product = trpc.products.getProduct.useQuery({ id });
+  const fetchCategories = trpc.products.getCategories.useQuery();
+  const detachCategories = trpc.products.removeAllCategories.useMutation()
 
   const { register, setValue, reset, getValues, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({ resolver: zodResolver(schema), mode: 'onBlur', defaultValues: { imageSrc: "" } });
 
@@ -89,9 +98,36 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   };
 
   const onSubmit = (data: any) => {
-    console.log(data)
-    updateProduct.mutate(data);
+    // console.log(data)
+    updateProduct.mutateAsync(data)
+    if (submitCategory.length > 0) {
+      submitCategory.forEach((category: any) => {
+        // console.log(category)
+        attachProduct.mutateAsync({ productId: data.id, categoryId: category.value })
+      })
+    }else{
+      detachCategories.mutateAsync({ productId: data.id })
+    }
+
   };
+
+  useEffect(() => {
+    product.refetch();
+    // clear categories array
+    categories.splice(0, categories.length)
+    categoriesSelected.splice(0, categoriesSelected.length)
+    if (product.data) {
+      product.data.categories.forEach((category: any) => {
+        categoriesSelected.push({ value: category.id, label: category.name })
+      })
+  
+      fetchCategories.data?.forEach((category: any) => {
+        categories.push({ value: category.id, label: category.name })
+      })
+
+    }
+
+  }, [editProductOpen])
 
   useEffect(() => {
     if (product.data) {
@@ -102,7 +138,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
       setValue("price", String(product.data.price));
       setValue("weight", String(product.data.weight));
       setValue("description", product.data.description);
-      setHtmlDescription(product.data?.description as string)
+      setHtmlDescription(product.data?.description as string);
       product.data.images.forEach((image: any) => {
         setValue("imageSrc", image.src);
       })
@@ -287,6 +323,9 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                                 </div>
                               </div>
                             </div>)}
+                          </div>
+                          <div className="sm:col-span-6">
+                            <ComboBox submitCategory={submitCategory} setSubmitCategory={setSubmitCategory} categoriesSelected={categoriesSelected} categories={categories} />
                           </div>
                         </div>
                       </div>

@@ -32,6 +32,12 @@ model Variant {
   VariantsOnOrders VariantsOnOrders[]
 }
 
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  isActive Boolean   @default(true)
+  products Product[]
+}
 model Product {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
@@ -43,6 +49,7 @@ model Product {
   isActive    Boolean   @default(true)
   variants    Variant[]
   images      Images[]
+  categories  Category[]
 }
 
 // model Categories {

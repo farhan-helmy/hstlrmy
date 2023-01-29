@@ -2,6 +2,7 @@
 import Link from "next/link";
 import type { FC } from "react"
 import { trpc } from "../utils/trpc";
+import LoadingSpinner from "./LoadingSpinner";
 
 export const ProductLists: FC = () => {
   const products = trpc.products.getActiveProducts.useQuery();
@@ -12,11 +13,10 @@ export const ProductLists: FC = () => {
         <h2 className="sr-only">Products</h2>
         {products.isLoading && (
           // loading spinner using tailwind
-          <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-8 border-gray-900"></div>
-          </div>
-
+          <LoadingSpinner />
         )}
+
+        
         
         <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
           {products.data?.map((product) => (

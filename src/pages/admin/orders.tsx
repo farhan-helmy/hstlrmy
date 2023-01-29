@@ -2,8 +2,6 @@ import type { NextPageWithLayout } from "../_app";
 import { AdminLayout } from "../../components/layout/admin";
 import OrderCard from "../../components/admin/OrderCard";
 import { useEffect, useState } from "react";
-import ShippingCard from "../../components/admin/ShippingCard";
-import { trpc } from "../../utils/trpc";
 
 const tabsData = [
   {
@@ -17,9 +15,6 @@ const tabsData = [
   },
 ];
 
-interface Status {
-  status: string
-}
 const Orders: NextPageWithLayout = () => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [orderStatus, setOrderStatus] = useState("")

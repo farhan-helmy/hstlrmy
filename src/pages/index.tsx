@@ -10,6 +10,7 @@ import { ProductLists } from "../components/ProductLists";
 import { SlideShowTest } from "../components/SlideShowTest";
 import useNotificationStore from "../store/notification";
 import { BannerSlider } from "../components/BannerSlider";
+import ProductFilter from "../components/ProductFilter";
 
 const Home: NextPage = () => {
   //const hello = trpc.example.hello.useQuery({ text: "from tRPC" });
@@ -33,7 +34,7 @@ const Home: NextPage = () => {
       </Head>
       <NavBar />
       <BannerSlider />
-      <ProductLists />
+      <ProductFilter />
       <Notification show={notificationStore.show} title={notificationStore.title} message={notificationStore.message} success={notificationStore.success} />
     </>
   );

@@ -101,8 +101,8 @@ export default function ProductPage() {
 
 
   const setForCheckout = (variants: ImageCollection) => {
-    setSelectedImage({ src: variants.src as string, alt: variants.name })
-    setCheckoutVariant({ id: variants.id, name: variants.name, imageSrc: variants.src as string })
+    setSelectedImage({ src: variants.src , alt: variants.name })
+    setCheckoutVariant({ id: variants.id, name: variants.name, imageSrc: variants.src  })
   }
 
   useEffect(() => {
@@ -190,7 +190,7 @@ export default function ProductPage() {
 
               {/* Reviews */}
 
-              <div className="mt-6">
+              <div className="mt-6 max-h-screen overflow-auto">
 
                 <h3 className="sr-only">Description</h3>
 

@@ -24,6 +24,7 @@ export const productRouter = router({
         },
         include: {
           images: true,
+          categories: true,
           variants: {
             orderBy: {
               name: 'desc'
@@ -40,7 +41,8 @@ export const productRouter = router({
           isActive: true
         },
         include: {
-          images: true
+          images: true,
+          categories: true,
         },
         orderBy: {
           createdAt: 'desc'
@@ -162,6 +164,53 @@ export const productRouter = router({
         },
       });
     }),
+  attachProductToCategory: publicProcedure
+    .input(z.object({
+      productId: z.string(),
+      categoryId: z.string()
+    }))
+    .mutation(async ({ input, ctx }) => {
+
+      await ctx.prisma.product.update({
+        where: {
+          id: input?.productId,
+        },
+       data: {
+        categories: {
+          set: []
+        }
+       }
+      });
+ 
+      await ctx.prisma.product.update({
+        where: {
+          id: input?.productId,
+        },
+        data: {
+          categories: {
+            connect: {
+              id: input?.categoryId
+            }
+          }
+        }
+      });
+    }),
+  removeAllCategories: publicProcedure
+    .input(z.object({
+      productId: z.string()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.product.update({
+        where: {
+          id: input?.productId,
+        },
+        data: {
+          categories: {
+            set: []
+          }
+        }
+      });
+    }),
   addVariant: publicProcedure
     .input(z.object({
       variant: z.array(z.object({
@@ -241,6 +290,79 @@ export const productRouter = router({
         return null
       }
     }),
+  getCategories: publicProcedure
+    .query(async ({ ctx }) => {
+      const categories = await ctx.prisma.category.findMany({
+        orderBy: {
+          name: "asc"
+        }
+      });
+      return categories;
+    }),
+  getActiveCategories: publicProcedure
+    .query(async ({ ctx }) => {
+      const categories = await ctx.prisma.category.findMany({
+        where: {
+          isActive: true
+        },
+        orderBy: {
+          name: "asc"
+        }
+      });
+      return categories;
+    }),
+  storeCategory: publicProcedure
+    .input(z.object({
+      name: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.category.create({
+        data: {
+          name: input?.name,
+        },
+      });
+    }),
+  toggleCategoryStatus: publicProcedure
+    .input(z.object({ id: z.string() }).nullish())
+    .mutation(async ({ input, ctx }) => {
+      const category = await ctx.prisma.category.findUniqueOrThrow({
+        where: {
+          id: input?.id,
+        },
+      });
 
+      if (category.isActive) {
+        await ctx.prisma.category.update({
+          where: {
+            id: input?.id,
+          },
+          data: {
+            isActive: false,
+          }
+        });
+      } else {
+        await ctx.prisma.category.update({
+          where: {
+            id: input?.id,
+          },
+          data: {
+            isActive: true,
+          }
+        });
+      }
+
+      return category;
+    }
+    ),
+  deleteCategory: publicProcedure
+    .input(z.object({ id: z.string() }).nullish())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.category.delete({
+        where: {
+          id: input?.id,
+        },
+      });
+    }
+    ),
 });
 
