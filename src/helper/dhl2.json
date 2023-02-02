@@ -1,0 +1,128 @@
+{
+	"labelRequest": {
+		"hdr": {
+			"messageType": "LABEL",
+			"messageDateTime": "2016-07-16T19:20:30+01:00",
+			"accessToken": "884d888958c24853a4af365f9265c9f1",
+			"messageVersion": "1.4",
+			"messageLanguage": "en"
+		},
+		"bd": {
+			"inlineLabelReturn": "Y",
+			"customerAccountId": null,
+			"pickupAccountId": "5293422351",
+			"soldToAccountId": "5293422351",
+			"handoverMethod": 2,
+			"pickupDateTime": "2023-02-23T10:20:30+08:00",
+			"pickupAddress": {
+				"name": "MD HUSTLR GLOBAL SDN BHD",
+				"address1": "SB-08-05, MENARA PARAGON PANGAEA",
+				"address2": null,
+				"city": "CYBERJAYA",
+				"state": "SEL",
+				"district": null,
+				"country": "MY",
+				"postCode": "63000",
+				"phone": "60193588584",
+				"email": "Hustlermytrading@gmail.com"
+			},
+			"shipperAddress": {
+				"name": "MD HUSTLR GLOBAL SDN BHD",
+				"address1": "SB-08-05, MENARA PARAGON PANGAEA",
+				"address2": null,
+				"city": "CYBERJAYA",
+				"state": "SEL",
+				"district": null,
+				"country": "MY",
+				"postCode": "63000",
+				"phone": "60193588584",
+				"email": "Hustlermytrading@gmail.com"
+			},
+			"shipmentItems": [
+				{
+					"consigneeAddress": {
+						"name": "ADRIN",
+						"address1": "NO 3 JALAN PPU 1",
+						"address2": "Taman Perindustrian Puchong Utama",
+						"address3": null,
+						"city": "Puchong",
+						"state": "Selangor",
+						"district": null,
+						"country": "MY",
+						"postCode": "47100",
+						"phone": "0123456789",
+						"email": null,
+						"idNumber": null,
+						"idType": null
+					},
+					"returnAddress": {
+						"name": "MD HUSTLR GLOBAL SDN BHD",
+						"address1": "SB-08-05, MENARA PARAGON PANGAEA",
+						"address2": null,
+						"city": "CYBERJAYA",
+						"state": "SEL",
+						"district": null,
+						"country": "MY",
+						"postCode": "63000",
+						"phone": "60193588584",
+						"email": "Hustlermytrading@gmail.com"
+					},
+					"shipmentID": "MYIGW123124",
+					"returnMode": "02",
+					"deliveryConfirmationNo": null,
+					"packageDesc": null,
+					"totalWeight": 3000,
+					"totalWeightUOM": "G",
+					"dimensionUOM": "cm",
+					"height": null,
+					"length": null,
+					"width": null,
+					"customerReference1": null,
+					"customerReference2": null,
+					"productCode": "PDO",
+					"incoterm": null,
+					"contentIndicator": null,
+					"codValue": null,
+					"insuranceValue": null,
+					"freightCharge": null,
+					"totalValue": null,
+					"currency": "MYR",
+					"remarks": null,
+					"isMult": "true",
+					"deliveryOption": "C",
+					"shipmentPieces": [
+						{
+							"pieceID": 1,
+							"announcedWeight": {
+								"weight": 1500,
+								"unit": "G"
+							},
+							"codAmount": 100,
+							"insuranceAmount": null,
+							"billingReference1": null,
+							"billingReference2": null,
+							"pieceDescription": "TD09-TURBO"
+						},
+						{
+							"pieceID": 2,
+							"announcedWeight": {
+								"weight": 1500,
+								"unit": "G"
+							},
+							"codAmount": 200,
+							"insuranceAmount": null,
+							"billingReference1": null,
+							"billingReference2": null,
+							"pieceDescription": "AP Racing 355mm Brake Kit"
+						}
+					]
+				}
+			],
+			"label": {
+				"pageSize": "400x600",
+				"format": "PNG",
+				"layout": "1x1"
+			}
+		}
+	}
+}

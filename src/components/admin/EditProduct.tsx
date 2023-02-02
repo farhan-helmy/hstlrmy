@@ -62,8 +62,6 @@ type ProductFormInputs = {
   description: string | null
   imageSrc?: string
 }
-const categoriesSelected: any = []
-const categories: any = []
 
 export default function EditProduct({ editProductOpen, setEditProductOpen, id }: EditProductProps) {
   const [editVariantOpen, setEditVariantOpen] = useState(false)
@@ -82,7 +80,6 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
 
   const attachProduct = trpc.products.attachProductToCategory.useMutation()
   const product = trpc.products.getProduct.useQuery({ id });
-  const fetchCategories = trpc.products.getCategories.useQuery();
   const detachCategories = trpc.products.removeAllCategories.useMutation()
 
   const { register, setValue, reset, getValues, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({ resolver: zodResolver(schema), mode: 'onBlur', defaultValues: { imageSrc: "" } });
@@ -102,8 +99,8 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
     updateProduct.mutateAsync(data)
     if (submitCategory.length > 0) {
       submitCategory.forEach((category: any) => {
-        // console.log(category)
-        attachProduct.mutateAsync({ productId: data.id, categoryId: category.value })
+        console.log(category)
+        attachProduct.mutateAsync({ productId: data.id, categoryId: category.id })
       })
     }else{
       detachCategories.mutateAsync({ productId: data.id })
@@ -113,20 +110,6 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
 
   useEffect(() => {
     product.refetch();
-    // clear categories array
-    categories.splice(0, categories.length)
-    categoriesSelected.splice(0, categoriesSelected.length)
-    if (product.data) {
-      product.data.categories.forEach((category: any) => {
-        categoriesSelected.push({ value: category.id, label: category.name })
-      })
-  
-      fetchCategories.data?.forEach((category: any) => {
-        categories.push({ value: category.id, label: category.name })
-      })
-
-    }
-
   }, [editProductOpen])
 
   useEffect(() => {
@@ -325,7 +308,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                             </div>)}
                           </div>
                           <div className="sm:col-span-6">
-                            <ComboBox submitCategory={submitCategory} setSubmitCategory={setSubmitCategory} categoriesSelected={categoriesSelected} categories={categories} />
+                            <ComboBox id={productId} setSubmitCategory={setSubmitCategory} />
                           </div>
                         </div>
                       </div>

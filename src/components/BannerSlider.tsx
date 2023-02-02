@@ -1,65 +1,99 @@
-/* eslint-disable @next/next/no-img-element */
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { useEffect, useRef, useState } from "react";
 
-const banner = [
-  '/bannerv2.jpg',
-]
 
-let count = 0;
-let interval: string | number | NodeJS.Timeout | undefined;
-export const BannerSlider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  const ref = useRef<HTMLDivElement>(null);
-  const removeAnimation = () => {
-    ref.current?.classList.remove('fade-animation');
-  }
-  // autoplay slider
-  useEffect(() => {
-    ref.current?.addEventListener("animationend", removeAnimation);
-    ref.current?.addEventListener("mouseenter", pauseSlider);
-    ref.current?.addEventListener("mouseleave", startSlider);
-
-    startSlider();
-    return () => {
-      pauseSlider();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const startSlider = () => {
-    interval = setInterval(() => {
-      changeNextSlide()
-    }, 5000);
-  }
-  const changeNextSlide = () => {
-    count = (count + 1) % banner.length;
-    setCurrentSlide(count);
-
-    ref.current?.classList.add('fade-animation')
-  }
-
-  const changePrevSlide = () => {
-    const itemsLength = banner.length;
-    count = (currentSlide + itemsLength - 1) % itemsLength;
-    setCurrentSlide(count);
-    ref.current?.classList.add('fade-animation')
-  }
-
-  const pauseSlider = () => {
-    clearInterval(interval);
-  }
-
+const BannerSlider = ()  => {
   return (
-    <div ref={ref} className="w-full select-none relative group">
-      <div className="aspect-w-10 aspect-h-3">
-        <img src={banner[currentSlide]} alt="smartwatch-1" />
-      </div>
-      <div className="absolute w-full top-1/2 transform -translate-y-1/2 px-3 flex justify-between items-center">    
-        <ChevronLeftIcon className="h-10 w-10 rounded-full opacity-0 group-hover:opacity-100 group-hover:transition-all text-gray-500" onClick={() => changePrevSlide()} />      
-        <ChevronRightIcon className="h-10 w-10 rounded-full opacity-0 group-hover:opacity-100 group-hover:transition-all text-gray-500" onClick={() => changeNextSlide()} />
+    <div className="relative overflow-hidden bg-white">
+      <div className="pt-16 pb-80 sm:pt-24 sm:pb-40 lg:pt-40 lg:pb-48">
+        <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
+          <div className="sm:max-w-lg">
+            <h1 className="font text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+              Welcome to Hustermy.com
+            </h1>
+            <p className="mt-4 text-xl text-gray-500">
+              {' '}
+            </p>
+          </div>
+          <div>
+            <div className="mt-10">
+              {/* Decorative image grid */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none lg:absolute lg:inset-y-0 lg:mx-auto lg:w-full lg:max-w-7xl"
+              >
+                <div className="absolute transform sm:left-1/2 sm:top-0 sm:translate-x-8 lg:left-1/2 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-8">
+                  <div className="flex items-center space-x-6 lg:space-x-8">
+                    <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+                      <div className="h-64 w-44 overflow-hidden rounded-lg sm:opacity-0 lg:opacity-100">
+                        <img
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <img
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <img
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <img
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <img
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <img
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <img
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <a
+                href="#"
+                className="inline-block rounded-md border border-transparent bg-indigo-600 py-3 px-8 text-center font-medium text-white hover:bg-indigo-700"
+              >
+                Shop Now
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  )
+
+  );
 }
+
+export default BannerSlider;

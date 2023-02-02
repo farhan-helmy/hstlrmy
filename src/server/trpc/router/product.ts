@@ -50,6 +50,42 @@ export const productRouter = router({
       });
       return products;
     }),
+  getActiveProductsByCategory: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input, ctx }) => {
+      if (input?.id === 'all') {
+        return await ctx.prisma.product.findMany({
+          where: {
+            isActive: true
+          },
+          include: {
+            images: true,
+            categories: true,
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        });
+      }
+      const products = await ctx.prisma.product.findMany({
+        where: {
+          isActive: true,
+          categories: {
+            some: {
+              id: input?.id
+            }
+          }
+        },
+        include: {
+          images: true,
+          categories: true,
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+      return products;
+    }),
   getImages: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
@@ -304,6 +340,13 @@ export const productRouter = router({
       const categories = await ctx.prisma.category.findMany({
         where: {
           isActive: true
+        },
+        include: {
+          products: {
+            where: {
+              isActive: true
+            }
+          }
         },
         orderBy: {
           name: "asc"

@@ -1,6 +1,7 @@
 import makeAnimated from 'react-select/animated';
 
 import dynamic from 'next/dynamic'
+import { trpc } from '../../utils/trpc';
 const Select = dynamic(() => import("react-select"), {
   ssr: false,
 })
@@ -12,16 +13,15 @@ export type Category = {
 }[]
 
 type ComboBoxProps = {
-  categoriesSelected: any;
-  categories: any;
-  submitCategory: Category;
+  id: string;
   setSubmitCategory: (e: Category) => void;
 }
 
 
 const animatedComponents = makeAnimated();
-const ComboBox = ({ categoriesSelected, setSubmitCategory, categories}: ComboBoxProps) => {
-
+const ComboBox = ({setSubmitCategory, id}: ComboBoxProps) => {
+ const getCategoriesData = trpc.products.getCategories.useQuery()
+ const getCategoriesOnProduct = trpc.products.getProduct.useQuery({id})
   const handleSubmit = (e: any) => {
     console.log(e)
     setSubmitCategory(e);
@@ -32,10 +32,12 @@ const ComboBox = ({ categoriesSelected, setSubmitCategory, categories}: ComboBox
       <Select
         closeMenuOnSelect={false}
         components={animatedComponents}
-        defaultValue={categoriesSelected}
+        defaultValue={getCategoriesOnProduct.data?.categories}
         isMulti
-        options={categories}
+        options={getCategoriesData.data}
         onChange={(e) => handleSubmit(e)}
+        getOptionLabel={(option: any) => option.name}
+        getOptionValue={(option: any) => option.id}
       />
     </>
     

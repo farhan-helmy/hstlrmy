@@ -6,10 +6,9 @@ import { useEffect } from "react";
 //import { trpc } from "../utils/trpc";
 import NavBar from "../components/NavBar";
 import Notification from "../components/Notification";
-import { ProductLists } from "../components/ProductLists";
-import { SlideShowTest } from "../components/SlideShowTest";
+
 import useNotificationStore from "../store/notification";
-import { BannerSlider } from "../components/BannerSlider";
+import BannerSlider from "../components/BannerSlider";
 import ProductFilter from "../components/ProductFilter";
 
 const Home: NextPage = () => {
@@ -21,7 +20,7 @@ const Home: NextPage = () => {
       notificationStore.closeNotification()
     }
       , 5000);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notificationStore.show]);
 
   return (
