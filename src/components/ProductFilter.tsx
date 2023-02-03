@@ -95,9 +95,8 @@ export default function Example() {
 
                       {getProductCategories.data?.map((category) => (
                         <li key={category.name}>
-                          <a href={category.id} className="block px-2 py-3">
-                            {category.name}
-                          </a>
+                          <button onClick={(e) => handleFilter(e, category.id)}>{category.name}</button>
+                          <p className="text-md font-bold text-indigo-700">({category.products.length})</p>
                         </li>
                       ))}
                     </ul>
