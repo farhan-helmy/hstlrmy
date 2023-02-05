@@ -1,3 +1,4 @@
+import Image from "next/image";
 
 
 const BannerSlider = ()  => {
@@ -24,56 +25,70 @@ const BannerSlider = ()  => {
                   <div className="flex items-center space-x-6 lg:space-x-8">
                     <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                       <div className="h-64 w-44 overflow-hidden rounded-lg sm:opacity-0 lg:opacity-100">
-                        <img
+                        <Image
                           src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
                           alt=""
                           className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
                         />
                       </div>
                       <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
+                        <Image
                           src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
                           alt=""
                           className="h-full w-full object-cover object-center"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
-                          alt=""
-                          className="h-full w-full object-cover object-center"
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
-                          alt=""
-                          className="h-full w-full object-cover object-center"
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
-                          alt=""
-                          className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
                         />
                       </div>
                     </div>
                     <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                       <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
+                        <Image
                           src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
                           alt=""
                           className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
                         />
                       </div>
                       <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <img
+                        <Image
                           src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
                           alt=""
                           className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <Image
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <Image
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <Image
+                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
                         />
                       </div>
                     </div>

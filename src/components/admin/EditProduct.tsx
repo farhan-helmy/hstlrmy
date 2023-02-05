@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 /*
   This example requires some changes to your config:
@@ -68,6 +69,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   const [productId, setProductId] = useState("")
   const [htmlDescription, setHtmlDescription] = useState("")
   const [submitCategory, setSubmitCategory] = useState<Category>([])
+  const [openComboBox, setOpenComboBox] = useState(false)
 
   const updateProduct = trpc.products.updateProduct.useMutation({
     onSuccess: () => {
@@ -81,6 +83,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   const attachProduct = trpc.products.attachProductToCategory.useMutation()
   const product = trpc.products.getProduct.useQuery({ id });
   const detachCategories = trpc.products.removeAllCategories.useMutation()
+  const getCategoriesData = trpc.products.getCategories.useQuery()
 
   const { register, setValue, reset, getValues, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({ resolver: zodResolver(schema), mode: 'onBlur', defaultValues: { imageSrc: "" } });
 
@@ -97,9 +100,8 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   const onSubmit = (data: any) => {
     // console.log(data)
     updateProduct.mutateAsync(data)
-    if (submitCategory.length > 0) {
-      submitCategory.forEach((category: any) => {
-        console.log(category)
+    if (submitCategory !== undefined) {
+      submitCategory?.forEach((category: any) => {
         attachProduct.mutateAsync({ productId: data.id, categoryId: category.id })
       })
     }else{
@@ -110,9 +112,15 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
 
   useEffect(() => {
     product.refetch();
+    setOpenComboBox(false)
+    setTimeout(() => {
+      setOpenComboBox(true)
+    }, 3000)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editProductOpen])
 
   useEffect(() => {
+    
     if (product.data) {
       reset();
       setProductId(product.data.id)
@@ -308,7 +316,12 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                             </div>)}
                           </div>
                           <div className="sm:col-span-6">
-                            <ComboBox id={productId} setSubmitCategory={setSubmitCategory} />
+                            {openComboBox === false && (
+                              <div>loading...</div>
+                              )}
+                            {openComboBox && (
+                              <ComboBox setSubmitCategory={setSubmitCategory} categoriesOnProduct={product.data?.categories} categories={getCategoriesData.data} />
+                            )}
                           </div>
                         </div>
                       </div>

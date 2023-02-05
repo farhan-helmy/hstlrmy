@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 /*
   This example requires some changes to your config:
@@ -23,7 +24,6 @@ import { useS3Upload } from 'next-s3-upload';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { trpc } from '../../utils/trpc';
-import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
 type AddProductProps = {

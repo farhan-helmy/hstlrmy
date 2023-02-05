@@ -1,46 +1,47 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import makeAnimated from 'react-select/animated';
 
 import dynamic from 'next/dynamic'
-import { trpc } from '../../utils/trpc';
 const Select = dynamic(() => import("react-select"), {
-  ssr: false,
+  ssr: true,
 })
-
 
 export type Category = {
   id: string;
   name: string;
-}[]
+}[] | undefined
 
 type ComboBoxProps = {
-  id: string;
   setSubmitCategory: (e: Category) => void;
+  categoriesOnProduct: Category;
+  categories: Category;
 }
 
 
 const animatedComponents = makeAnimated();
-const ComboBox = ({setSubmitCategory, id}: ComboBoxProps) => {
- const getCategoriesData = trpc.products.getCategories.useQuery()
- const getCategoriesOnProduct = trpc.products.getProduct.useQuery({id})
+const ComboBox = ({ setSubmitCategory, categoriesOnProduct, categories }: ComboBoxProps) => {
+
   const handleSubmit = (e: any) => {
-    console.log(e)
+    // console.log(e)
     setSubmitCategory(e);
   }
+  console.log("1", categoriesOnProduct)
+  console.log("2", categories)
   return (
     <>
-    <div className="mb-2">Update Categories</div>
-      <Select
-        closeMenuOnSelect={false}
-        components={animatedComponents}
-        defaultValue={getCategoriesOnProduct.data?.categories}
-        isMulti
-        options={getCategoriesData.data}
-        onChange={(e) => handleSubmit(e)}
-        getOptionLabel={(option: any) => option.name}
-        getOptionValue={(option: any) => option.id}
-      />
+      <div className="mb-2">Update Categories</div>
+        <Select
+          closeMenuOnSelect={false}
+          components={animatedComponents}
+          defaultValue={categoriesOnProduct}
+          isMulti
+          options={categories}
+          onChange={(e) => handleSubmit(e)}
+          getOptionLabel={(option: any) => option.name}
+          getOptionValue={(option: any) => option.id}
+        />
     </>
-    
+
   );
 }
 
