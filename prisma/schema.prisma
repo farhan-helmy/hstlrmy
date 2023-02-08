@@ -38,15 +38,16 @@ model Category {
   isActive Boolean   @default(true)
   products Product[]
 }
+
 model Product {
-  id          String    @id @default(cuid())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   name        String?
   price       Float?
   weight      Int?
   description String?
-  isActive    Boolean   @default(true)
+  isActive    Boolean    @default(true)
   variants    Variant[]
   images      Images[]
   categories  Category[]
@@ -141,6 +142,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  role          Role      @default(USER)
 }
 
 model VerificationToken {
@@ -149,4 +151,9 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+enum Role {
+  USER
+  ADMIN
 }

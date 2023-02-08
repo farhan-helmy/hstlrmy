@@ -24,6 +24,7 @@ export const serverSchema = z.object({
   AWS_SES_KEY: z.string(),
   AWS_SES_SECRET_KEY: z.string(),
   WHATSAPP_API_TOKEN: z.string(),
+  JWT_SECRET: z.string(),
 });
 
 /**
