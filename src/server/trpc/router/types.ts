@@ -5,7 +5,11 @@ export const ProductInput = z.object({
   name: z.string(),
   price: z.string(),
   weight: z.string(),
-  imageSrc: z.string(),
+  image: z.array(
+    z.object({
+      src: z.string().min(1, { message: "src name is required" }).max(1000),
+    })
+  ),
   description: z.string(),
   variant: z.array(
     z.object({

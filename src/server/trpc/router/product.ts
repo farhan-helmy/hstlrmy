@@ -153,12 +153,14 @@ export const productRouter = router({
           weight: parseFloat(input?.weight),
           description: input?.description,
           images: {
-            create: [
-              {
-                src: input?.imageSrc,
-                alt: input?.name,
-              }
-            ]
+            createMany: {
+              data: [
+                ...input?.image.map((image) => ({
+                  src: image.src,
+                  alt: input.name,
+                }))
+              ]
+            }
           },
           variants: {
             createMany: {
@@ -211,13 +213,13 @@ export const productRouter = router({
         where: {
           id: input?.productId,
         },
-       data: {
-        categories: {
-          set: []
+        data: {
+          categories: {
+            set: []
+          }
         }
-       }
       });
- 
+
       await ctx.prisma.product.update({
         where: {
           id: input?.productId,
