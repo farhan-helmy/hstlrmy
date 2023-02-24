@@ -1,10 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { PencilSquareIcon, BoltIcon } from '@heroicons/react/20/solid'
+import { PencilSquareIcon, BoltIcon, TrashIcon } from '@heroicons/react/20/solid'
 import { trpc } from "../../utils/trpc";
 import { Switch } from '@headlessui/react'
 import AddProduct from './AddProduct';
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import EditProduct from './EditProduct';
+import DeleteProductModal from './DeleteProductModal';
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -14,6 +15,7 @@ export default function Products() {
   const [open, setOpen] = useState(false);
   const [editProductOpen, setEditProductOpen] = useState(false);
   const [productId, setProductId] = useState("");
+  const [deleteProductOpen, setDeleteProductOpen] = useState(false);
   const products = trpc.products.getAll.useQuery();
   const toggleStatus = trpc.products.toggleStatus.useMutation();
 
@@ -27,9 +29,18 @@ export default function Products() {
     setEditProductOpen(true);
   };
 
+  const deleteProduct = (id: string) => {
+    setProductId(id)
+    setDeleteProductOpen(true);
+  }
+
+  useEffect(() => {
+    products.refetch();
+  }, [deleteProductOpen]);
 
   return (
     <>
+      <DeleteProductModal open={deleteProductOpen} setOpen={setDeleteProductOpen} productId={productId} />
       <button
         onClick={() => setOpen(true)}
         type="button"
@@ -55,7 +66,7 @@ export default function Products() {
                   <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
                     In Stock
                   </span>
-                </dd> 
+                </dd>
                 <dd className="mt-3">
                   <Switch
                     checked={product.isActive}
@@ -114,6 +125,13 @@ export default function Products() {
                   >
                     <PencilSquareIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                     <span className="ml-3">Edit</span>
+                  </button>
+                  <button
+                    onClick={() => deleteProduct(product.id)}
+                    className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center rounded-bl-lg border border-transparent py-4 text-sm font-medium text-gray-700 hover:text-gray-500"
+                  >
+                    <TrashIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
+                    <span className="ml-3">Delete</span>
                   </button>
                 </div>
               </div>

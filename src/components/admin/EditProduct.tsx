@@ -17,7 +17,7 @@
 
 import React, { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
+import { ExclamationCircleIcon, PlusCircleIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { useForm } from 'react-hook-form';
 import { useS3Upload } from 'next-s3-upload';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +28,8 @@ import 'react-quill/dist/quill.snow.css';
 import dynamic from 'next/dynamic';
 import ComboBox from './ComboBox';
 import type { Category } from './ComboBox';
+import type { ImagePreviews } from './AddProduct';
+import Image from 'next/image'
 
 const QuillNoSSRWrapper = dynamic(
   () => {
@@ -48,21 +50,21 @@ const schema = z.object({
   price: z.string(),
   weight: z.string().min(1, { message: "Weight is required" }).max(100),
   description: z.string().min(1, { message: "Description is required" }),
-  imageSrc: z.string().min(1, { message: "Image is required" }).max(10000),
 })
 
 export type Variant = {
   name: string | null
   imageSrc?: string
 }
+
 type ProductFormInputs = {
-  id: string | null
-  name: string | null
-  price: string | null
-  weight: string | null
-  description: string | null
-  imageSrc?: string
+  id: string
+  name: string
+  price: string
+  weight: string
+  description: string
 }
+
 
 export default function EditProduct({ editProductOpen, setEditProductOpen, id }: EditProductProps) {
   const [editVariantOpen, setEditVariantOpen] = useState(false)
@@ -70,6 +72,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   const [htmlDescription, setHtmlDescription] = useState("")
   const [submitCategory, setSubmitCategory] = useState<Category>([])
   const [openComboBox, setOpenComboBox] = useState(false)
+  const [imagePreviews, setImagePreviews] = useState<ImagePreviews[]>();
 
   const updateProduct = trpc.products.updateProduct.useMutation({
     onSuccess: () => {
@@ -84,8 +87,10 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   const product = trpc.products.getProduct.useQuery({ id });
   const detachCategories = trpc.products.removeAllCategories.useMutation()
   const getCategoriesData = trpc.products.getCategories.useQuery()
+  const updateProductImage = trpc.products.addProductImage.useMutation()
+  const deleteProductImage = trpc.products.deleteProductImage.useMutation()
 
-  const { register, setValue, reset, getValues, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({ resolver: zodResolver(schema), mode: 'onBlur', defaultValues: { imageSrc: "" } });
+  const { register, setValue, reset, getValues, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({ resolver: zodResolver(schema), mode: 'onBlur' });
 
   const { uploadToS3 } = useS3Upload();
 
@@ -94,20 +99,41 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
     const file = e.target.files[0];
     const { url } = await uploadToS3(file);
 
-    setValue("imageSrc", url);
+    // setValue("imageSrc", url);
   };
 
+  const handleAddMoreImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files === null) return;
+    const file = e.target?.files[0];
+    const { url } = await uploadToS3(file as File);
+    updateProductImage.mutateAsync({
+      productId: id,
+      imageSrc: url,
+      imageAlt: ''
+    }).then(() => {
+      product.refetch();
+    })
+  }
+
+  const deleteImageFromProduct = (imageId: string, e: React.FormEvent) => {
+    e.preventDefault();
+    deleteProductImage.mutateAsync({ productId: id, imageId: imageId })
+      .then((data) => {
+        console.log(data)
+        setImagePreviews(imagePreviews?.filter((image) => image.id !== imageId))
+      })
+  }
+
   const onSubmit = (data: any) => {
-    // console.log(data)
+    console.log(data)
     updateProduct.mutateAsync(data)
     if (submitCategory !== undefined) {
       submitCategory?.forEach((category: any) => {
         attachProduct.mutateAsync({ productId: data.id, categoryId: category.id })
       })
-    }else{
+    } else {
       detachCategories.mutateAsync({ productId: data.id })
     }
-
   };
 
   useEffect(() => {
@@ -116,23 +142,27 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
     setTimeout(() => {
       setOpenComboBox(true)
     }, 3000)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editProductOpen])
 
   useEffect(() => {
-    
+    const urls: ImagePreviews[] = [];
+
     if (product.data) {
       reset();
       setProductId(product.data.id)
       setValue("id", product.data.id);
-      setValue("name", product.data.name);
+      setValue("name", product.data.name as string);
       setValue("price", String(product.data.price));
       setValue("weight", String(product.data.weight));
-      setValue("description", product.data.description);
+      setValue("description", product.data.description as string);
       setHtmlDescription(product.data?.description as string);
       product.data.images.forEach((image: any) => {
-        setValue("imageSrc", image.src);
+
+        urls.push({ url: image.src, id: image.id })
+        console.log(urls)
       })
+      setImagePreviews(urls.map((data) => ({ url: data.url, id: data.id })));
     }
   }, [product.data, reset, setValue])
 
@@ -263,62 +293,35 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                               Product photo
                             </label>
 
-                            {getValues("imageSrc") === "" ? (<div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
-                              <div className="space-y-1 text-center">
-                                <svg
-                                  className="mx-auto h-12 w-12 text-gray-400"
-                                  stroke="currentColor"
-                                  fill="none"
-                                  viewBox="0 0 48 48"
-                                  aria-hidden="true"
-                                >
-                                  <path
-                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                    strokeWidth={2}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                                <div className="flex text-sm text-gray-600">
+                            <div className="grid-cols-4 p-4 space-y-2 gap-2 grid">
+                              {imagePreviews ? (
+                                imagePreviews.map((imagePreview, index) => (
+                                  <div key={index} className="">
+                                    <button onClick={(e) => deleteImageFromProduct(imagePreview.id, e)}>
+                                      <TrashIcon className="h-5 w-5 text-red-400" />
+                                    </button>
+                                    <Image src={imagePreview.url} alt="xsd" height={250} width={250} className="" />
+                                  </div>
+                                ))) : null}
+                              {imagePreviews ? (
+                                <div className="flex flex-col justify-center items-center border border-b rounded-lg h-44">
                                   <label
                                     htmlFor="product-image-upload"
                                     className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
                                   >
-                                    <span>Upload a file</span>
-                                    <input type="file" name="product-image-upload" id="product-image-upload" className="sr-only" onChange={(e) => onProductImageChange(e)} />
-
+                                    <span>
+                                      <PlusCircleIcon className="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                    <input type="file" name="product-image-upload" id="product-image-upload" className="sr-only" onChange={(e) => handleAddMoreImages(e)} multiple accept="image/*" />
                                   </label>
-
-                                  <p className="pl-1">or drag and drop</p>
                                 </div>
-                                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                              </div>
-                            </div>) : (<div>
-                              <div className="sm:col-span-6">
-                                <label htmlFor="cover-photo" className="block text-sm font-medium text-gray-700">
-                                  Preview
-                                </label>
-                                <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300">
-                                  <div className="space-y-1 text-center">
-                                    <label
-                                      htmlFor="product-image-update"
-                                      className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
-                                    >
-                                      <img src={getValues("imageSrc")}
-                                        alt="preview"
-                                        className="mx-auto text-gray-400"
-                                      />
-                                      <input type="file" name="product-image-update" id="product-image-update" className="sr-only" onChange={(e) => onProductImageChange(e)} />
-                                    </label>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>)}
+                              ) : null}
+                            </div>
                           </div>
                           <div className="sm:col-span-6">
                             {openComboBox === false && (
                               <div>loading...</div>
-                              )}
+                            )}
                             {openComboBox && (
                               <ComboBox setSubmitCategory={setSubmitCategory} categoriesOnProduct={product.data?.categories} categories={getCategoriesData.data} />
                             )}
@@ -350,6 +353,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                     onClick={() => setEditVariantOpen(true)}
                     className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   >Edit Variant</button>
+
                 </Dialog.Panel>
               </Transition.Child>
             </div>

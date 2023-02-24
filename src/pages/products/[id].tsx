@@ -63,8 +63,6 @@ export default function ProductPage() {
   const notificationStore = useNotificationStore();
 
   const buyNow = (product: Item) => {
-
-    console.log(product.variant)
     if (product.variant) {
       cartStore.addToCart(product)
       router.push('/checkout')
@@ -143,9 +141,9 @@ export default function ProductPage() {
               {/* Image selector */}
               <div className="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                 <Tab.List className="grid grid-cols-4 gap-6">
-                  {imageCollections.map((image) => (
+                  {imageCollections.map((image, idx) => (
                     <Tab
-                      key={image.id}
+                      key={idx}
                       className="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
                     >
                       {({ selected }) => (
@@ -248,7 +246,7 @@ export default function ProductPage() {
                     <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
                       {productz.data?.variants.map((variants) => (
                         <RadioGroup.Option
-                          key={variants.name}
+                          key={variants.id}
                           value={variants}
                           className={({ active, checked }) =>
                             classNames(

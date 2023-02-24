@@ -30,6 +30,7 @@
     "next-s3-upload": "^0.2.8",
     "nodemailer": "^6.8.0",
     "popmotion": "^11.0.5",
+    "poslaju": "*",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.40.0",
@@ -40,8 +41,7 @@
     "react-use": "^17.4.0",
     "superjson": "1.9.1",
     "zod": "^3.18.0",
-    "zustand": "^4.1.4",
-    "poslaju": "*"
+    "zustand": "^4.1.4"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
@@ -71,5 +71,9 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "main": "index.js",
+  "repository": "https://github.com/farhan-helmy/hstlrmy.git",
+  "author": "Farhan Helmy <farhanhlmy@gmail.com>",
+  "license": "MIT"
 }

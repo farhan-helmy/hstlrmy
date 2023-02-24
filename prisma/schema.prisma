@@ -27,7 +27,7 @@ model Variant {
   price            Int?
   imageSrc         String?
   imageAlt         String?
-  product          Product            @relation(fields: [productId], references: [id])
+  product          Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId        String
   VariantsOnOrders VariantsOnOrders[]
 }
@@ -82,9 +82,9 @@ model ProductsOnOrder {
 }
 
 model VariantsOnOrders {
-  variant   Variant @relation(fields: [variantId], references: [id])
+  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
   variantId String // relation scalar field (used in the `@relation` attribute above)
-  order     Order   @relation(fields: [orderId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String // relation scalar field (used in the `@relation` attribute above)
   quantity  Int
 
@@ -97,7 +97,7 @@ model Images {
   updatedAt DateTime @updatedAt
   src       String
   alt       String
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
 

@@ -24,7 +24,6 @@ export const UpdateProductInput = z.object({
   name: z.string(),
   price: z.string(),
   weight: z.string(),
-  imageSrc: z.string(),
   description: z.string(),
 })
 

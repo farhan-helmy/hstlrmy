@@ -188,18 +188,56 @@ export const productRouter = router({
           price: parseFloat(input?.price),
           weight: parseFloat(input?.weight),
           description: input?.description,
-          images: {
-            updateMany: {
-              where: {
-                productId: input?.id,
-              },
-              data: {
-                src: input?.imageSrc,
-                alt: input?.name,
-              }
-            }
-          },
         },
+      });
+    }),
+  addProductImage: publicProcedure
+    .input(z.object({
+      productId: z.string(),
+      imageSrc: z.string(),
+      imageAlt: z.string()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.prisma.product.update({
+        where: {
+          id: input?.productId,
+        },
+        data: {
+          images: {
+            create: {
+              src: input?.imageSrc,
+              alt: input?.imageAlt
+            }
+          }
+        },
+        include: {
+          images: {
+            select: {
+              id: true,
+              createdAt: true,
+            }
+          }
+        }
+      });
+
+    }),
+  deleteProductImage: publicProcedure
+    .input(z.object({
+      productId: z.string(),
+      imageId: z.string()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.product.update({
+        where: {
+          id: input?.productId,
+        },
+        data: {
+          images: {
+            delete: {
+              id: input?.imageId
+            }
+          }
+        }
       });
     }),
   attachProductToCategory: publicProcedure
@@ -403,6 +441,16 @@ export const productRouter = router({
     .input(z.object({ id: z.string() }).nullish())
     .mutation(async ({ input, ctx }) => {
       await ctx.prisma.category.delete({
+        where: {
+          id: input?.id,
+        },
+      });
+    }
+    ),
+  deleteProduct: publicProcedure
+    .input(z.object({ id: z.string() }).nullish())
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.product.delete({
         where: {
           id: input?.id,
         },

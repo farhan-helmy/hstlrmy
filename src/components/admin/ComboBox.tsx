@@ -25,8 +25,6 @@ const ComboBox = ({ setSubmitCategory, categoriesOnProduct, categories }: ComboB
     // console.log(e)
     setSubmitCategory(e);
   }
-  console.log("1", categoriesOnProduct)
-  console.log("2", categories)
   return (
     <>
       <div className="mb-2">Update Categories</div>

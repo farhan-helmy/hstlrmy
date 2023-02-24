@@ -63,8 +63,9 @@ type ProductFormInputs = {
   }[]
 }
 
-type ImagePreviews = {
-  url: string,
+export type ImagePreviews = {
+  id: string,
+  url: string
 }
 
 const variantTypes = [
