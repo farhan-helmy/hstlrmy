@@ -17,7 +17,7 @@
 
 import React, { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition, Listbox } from '@headlessui/react'
-import { CheckIcon, ChevronUpDownIcon, ExclamationCircleIcon } from '@heroicons/react/20/solid'
+import { CheckIcon, ChevronUpDownIcon, ExclamationCircleIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useS3Upload } from 'next-s3-upload';
@@ -111,6 +111,18 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
     setImagePreviews(images);
     // const { url } = await uploadToS3(file);
     setValue('image', urls.map(url => ({ src: url })));
+  }
+
+
+  const handleAddMoreImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files === null) return;
+    const file = e.target?.files[0];
+    const { url } = await uploadToS3(file as File);
+    const images = getValues('image');
+    setValue('image', [...images, { src: url }]);
+
+    setImagePreviews([...imagePreviews as ImagePreviews[], URL.createObjectURL(file as Blob) as unknown as ImagePreviews]);
+    console.log(imagePreviews)
   }
 
   const onVariantImageChange = async (e: any, index: number) => {
@@ -292,12 +304,21 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                                 {imagePreviews ? (
                                   imagePreviews.map((imagePreview, index) => (
                                     <div key={index}>
+                                      <h1>{imagePreview.url}</h1>
                                       <Image src={imagePreview as unknown as string} alt="xsd" height={250} width={250} />
                                     </div>
                                   ))) : null}
                                 {imagePreviews ? (
-                                  <div className="flex justify-center items-center">
-                                    +
+                                  <div className="flex flex-col justify-center items-center border border-b rounded-lg h-40">
+                                    <label
+                                      htmlFor="add-more-product-image-upload"
+                                      className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                                    >
+                                      <span>
+                                        <PlusCircleIcon className="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                      <input type="file" name="add-more-product-image-upload" id="add-more-product-image-upload" className="sr-only" onChange={(e) => handleAddMoreImages(e)} multiple accept="image/*" />
+                                    </label>
                                   </div>
                                 ) : null}
                               </div>

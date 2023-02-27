@@ -17,7 +17,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { RadioGroup, Transition } from '@headlessui/react'
 import { CheckCircleIcon, ExclamationCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
 import type { NextPage } from 'next'
-import { checkPhoneNumber, securepaySign } from '../helper/utils'
+import { checkPhoneNumber, securepaySign, sendOtp } from '../helper/utils'
 import Alert from '../components/Alerts'
 import type { NotificationProps } from '../components/Notification'
 import type { Item } from '../store/cart';
@@ -109,27 +109,11 @@ const Checkout: NextPage = () => {
     return total
   }
 
-  const continueNameInformation = (e: any) => {
+  const continueNameInformation =  async (e: any) => {
     e.preventDefault()
-    if (checkPhoneNumber(phoneNumber)) {
-      setOpenNameInformation(true)
-    } else {
-      setNotification({
-        title: 'Please enter a valid phone number',
-        message: 'Please enter a valid phone number',
-        success: false,
-        show: true,
-      })
-
-      setTimeout(() => {
-        setNotification({
-          title: '',
-          message: '',
-          success: false,
-          show: false,
-        })
-      }, 2000)
-    }
+  
+    const result = await sendOtp(phoneNumber)
+    console.log(result)
   }
 
   const submitLeads = async (e: any) => {
@@ -262,7 +246,7 @@ const Checkout: NextPage = () => {
                     {...register("phoneNumber", { required: true })}
                     type="text"
                     className="block w-full rounded-md border-gray-300 pl-16 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    placeholder="+60"
+                    placeholder="eg: 014-123456"
                     onChange={e => setPhoneNumber(e.target.value)}
                     disabled={openShippingInformation}
                   />
@@ -347,7 +331,24 @@ const Checkout: NextPage = () => {
                     </div>
                     <p className="mt-2 text-sm text-red-600">{errors.address2?.message}</p>
                   </div>
+                  <div>
+                    <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700">
+                      Postal code
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        {...register("postalCode", { required: true })}
+                        type="text"
 
+                        autoComplete="postal-code"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      {errors.postalCode?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
+                      </div>}
+                    </div>
+                    <p className="mt-2 text-sm text-red-600">{errors.postalCode?.message}</p>
+                  </div>
                   <div>
                     <label htmlFor="city" className="block text-sm font-medium text-gray-700">
                       City
@@ -406,24 +407,7 @@ const Checkout: NextPage = () => {
                     <p className="mt-2 text-sm text-red-600">{errors.state?.message}</p>
                   </div>
 
-                  <div>
-                    <label htmlFor="postal-code" className="block text-sm font-medium text-gray-700">
-                      Postal code
-                    </label>
-                    <div className="mt-1">
-                      <input
-                        {...register("postalCode", { required: true })}
-                        type="text"
-
-                        autoComplete="postal-code"
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      {errors.postalCode?.message && <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <ExclamationCircleIcon className="h-5 w-5 text-red-500" aria-hidden="true" />
-                      </div>}
-                    </div>
-                    <p className="mt-2 text-sm text-red-600">{errors.postalCode?.message}</p>
-                  </div>
+                
                   <div className="sm:col-span-2">
                     <button
                       type="submit"
