@@ -27,6 +27,8 @@ import {
 } from '@heroicons/react/24/outline'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { useRouter } from 'next/router'
+import Notification from "../../components/Notification";
+import useNotificationStore from '../../store/notification';
 
 
 const userNavigation = [
@@ -47,6 +49,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
 
+  const notificationStore = useNotificationStore();
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: router.pathname === '/admin/dashboard' },
     { name: 'Products', href: '/admin/products', icon: ArchiveBoxIcon, current: router.pathname === '/admin/products' },
@@ -69,7 +72,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
       </Head>
-      
+
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog as="div" className="relative z-40 md:hidden" onClose={setSidebarOpen}>
@@ -209,6 +212,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                   </div>
                 </form>
               </div>
+
               <div className="ml-4 flex items-center md:ml-6">
                 <button
                   type="button"
@@ -259,12 +263,13 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                   </Transition>
                 </Menu>
               </div>
+              <Notification show={notificationStore.show} title={notificationStore.title} message={notificationStore.message} success={notificationStore.success} />
             </div>
           </div>
 
           <main>
             <div className="py-6">
-             
+
               <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
                 {/* Replace with your content */}
                 {children}

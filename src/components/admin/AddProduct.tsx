@@ -17,7 +17,7 @@
 
 import React, { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition, Listbox } from '@headlessui/react'
-import { CheckIcon, ChevronUpDownIcon, ExclamationCircleIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
+import { CheckIcon, ChevronUpDownIcon, ExclamationCircleIcon, PhotoIcon, PlusCircleIcon } from '@heroicons/react/20/solid'
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { useS3Upload } from 'next-s3-upload';
@@ -27,6 +27,7 @@ import { trpc } from '../../utils/trpc';
 import 'react-quill/dist/quill.snow.css';
 import LoadingSpinner from '../LoadingSpinner';
 import Image from "next/image"
+import useNotificationStore from '../../store/notification';
 
 type AddProductProps = {
   open: boolean
@@ -82,6 +83,7 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
   const [imagePreviews, setImagePreviews] = useState<ImagePreviews[]>();
 
   const addProduct = trpc.products.addProduct.useMutation();
+  const products = trpc.products.getAll.useQuery();
 
   const { register, setValue, getValues, control, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({ resolver: zodResolver(schema), mode: 'onBlur', defaultValues: { image: [{ src: "" }], variant: [{ name: '', imageSrc: "" }] } });
 
@@ -94,6 +96,7 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
   const [description, setDescription] = useState('')
 
   const { uploadToS3 } = useS3Upload();
+  const notificationStore = useNotificationStore();
 
   const onProductImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
@@ -135,7 +138,20 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
 
   const onSubmit: SubmitHandler<ProductFormInputs> = data => {
 
-    addProduct.mutate(data);
+    addProduct.mutateAsync(data)
+      .then(() => {
+        setOpen(false);
+      })
+      .then(() => {
+        notificationStore.showNotification({
+          title: "Success!",
+          message: `${data.name} product added successfully`,
+          success: true,
+          show: true
+        });
+        products.refetch();
+      }
+      )
   };
 
   useEffect(() => {
@@ -236,6 +252,7 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                                 className="block w-full rounded-md border-gray-300 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder=""
                                 aria-describedby="price-currency"
+                                step="0.1"
                               />
                               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                 <span className="text-gray-500 sm:text-sm" id="price-currency">
@@ -268,37 +285,21 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                               Product photo
                             </label>
 
-                            <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
-                              <div className="space-y-1 text-center">
-                                <svg
-                                  className="mx-auto h-12 w-12 text-gray-400"
-                                  stroke="currentColor"
-                                  fill="none"
-                                  viewBox="0 0 48 48"
-                                  aria-hidden="true"
+                            {!imagePreviews ? (
+                              <div className="flex text-sm text-gray-600">
+                                <label
+                                  htmlFor="product-image-upload"
+                                  className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
                                 >
-                                  <path
-                                    d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                    strokeWidth={2}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                                <div className="flex text-sm text-gray-600">
-                                  <label
-                                    htmlFor="product-image-upload"
-                                    className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
-                                  >
-                                    <span>Upload a file</span>
-                                    <input type="file" name="product-image-upload" id="product-image-upload" className="sr-only" onChange={(e) => onProductImageChange(e)} multiple accept="image/*" />
-
-                                  </label>
-
-                                  <p className="pl-1">or drag and drop</p>
-                                </div>
-                                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                  <div className="group relative m-4">
+                                    <PhotoIcon className="h-12 w-12" />
+                                    <span className="absolute top-10 scale-0 transition-all rounded bg-gray-800 p-2 text-md text-white group-hover:scale-100">✨ click to add photo!</span>
+                                  </div>
+                                  <input type="file" name="product-image-upload" id="product-image-upload" className="sr-only" onChange={(e) => onProductImageChange(e)} multiple accept="image/*" />
+                                </label>
                               </div>
-                            </div>
+                            ) : null}
+
                             <div className="">
                               <div className="grid-cols-4 p-4 space-y-2 grid">
                                 {imagePreviews ? (
@@ -323,34 +324,7 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
                                 ) : null}
                               </div>
                             </div>
-                            {/* <div className="container mx-auto">
-                              <div className="grid-cols-4 p-4 space-y-2 lg:space-y-0 lg:grid lg:gap-3 lg:grid-rows-3">
-                                <div className="w-full rounded">
-                                  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=989&q=80"
-                                    alt="image" />
-                                </div>
-                                <div className="w-full rounded">
-                                  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=989&q=80"
-                                    alt="image" />
-                                </div>
-                                <div className="w-full rounded">
-                                  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=989&q=80"
-                                    alt="image" />
-                                </div>
-                                <div className="w-full rounded">
-                                  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=989&q=80"
-                                    alt="image" />
-                                </div>
-                                <div className="w-full rounded">
-                                  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=989&q=80"
-                                    alt="image" />
-                                </div>
-                                <div className="w-full rounded">
-                                  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=989&q=80"
-                                    alt="image" />
-                                </div>
-                              </div>
-                            </div> */}
+
                           </div>
                         </div>
                       </div>

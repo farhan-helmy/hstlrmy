@@ -30,6 +30,7 @@ import ComboBox from './ComboBox';
 import type { Category } from './ComboBox';
 import type { ImagePreviews } from './AddProduct';
 import Image from 'next/image'
+import useNotificationStore from '../../store/notification';
 
 const QuillNoSSRWrapper = dynamic(
   () => {
@@ -90,6 +91,8 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   const updateProductImage = trpc.products.addProductImage.useMutation()
   const deleteProductImage = trpc.products.deleteProductImage.useMutation()
 
+  const notificationStore = useNotificationStore()
+
   const { register, setValue, reset, getValues, handleSubmit, formState: { errors } } = useForm<ProductFormInputs>({ resolver: zodResolver(schema), mode: 'onBlur' });
 
   const { uploadToS3 } = useS3Upload();
@@ -127,6 +130,14 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
   const onSubmit = (data: any) => {
     console.log(data)
     updateProduct.mutateAsync(data)
+      .then(() => {
+        notificationStore.showNotification({
+          title: "Product Updated",
+          message: `${data.name} product updated successfully`,
+          success: true,
+          show: true
+        });
+      })
     if (submitCategory !== undefined) {
       submitCategory?.forEach((category: any) => {
         attachProduct.mutateAsync({ productId: data.id, categoryId: category.id })
@@ -262,6 +273,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                                 className="block w-full rounded-md border-gray-300 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder=""
                                 aria-describedby="price-currency"
+                                step="0.1"
                               />
                               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                 <span className="text-gray-500 sm:text-sm" id="price-currency">

@@ -1,8 +1,10 @@
-import { TrashIcon } from "@heroicons/react/20/solid";
+import { CheckBadgeIcon, CheckCircleIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { trpc } from "../../utils/trpc";
 import AddCategoryForm from "./AddCategoryForm";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Switch } from "@headlessui/react";
+import { useOutsideClick } from "../../custom-hooks";
+import useNotificationStore from "../../store/notification";
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(' ')
@@ -10,9 +12,15 @@ function classNames(...classes: any) {
 
 const AddCategory: React.FC = () => {
   const [openAddCategoryForm, setOpenAddCategoryForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedTextIndex, setSelectedTextIndex] = useState<number>();
+  const [categoryName, setCategoryName] = useState("");
   const categories = trpc.products.getCategories.useQuery();
   const toggleCategoryStatus = trpc.products.toggleCategoryStatus.useMutation();
   const delCategory = trpc.products.deleteCategory.useMutation()
+  const updateCategory = trpc.products.updateCategory.useMutation();
+
+  const notificationStore = useNotificationStore();
 
   const toggleCategory = (id: string) => {
     toggleCategoryStatus.mutateAsync({ id })
@@ -28,6 +36,31 @@ const AddCategory: React.FC = () => {
         categories.refetch();
       });
   }
+
+  const handleTextClick = (name: string, idx: number) => {
+    if (idx === selectedTextIndex) {
+      setSelectedTextIndex(undefined);
+    } else {
+      setSelectedTextIndex(idx);
+      setCategoryName(name);
+    }
+  };
+
+  const updateCategoryName = (categoryId: string) => {
+    updateCategory.mutateAsync({ id: categoryId, name: categoryName })
+      .then(() => {
+        setSelectedTextIndex(undefined);
+        categories.refetch();
+      })
+      .then(() => {
+        notificationStore.showNotification({
+          title: "Category Updated",
+          message: "Category name has been updated",
+          success: true,
+          show: true,
+        });
+      })
+  };
 
   useEffect(() => {
     categories.refetch();
@@ -52,21 +85,36 @@ const AddCategory: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="overflow-hidden bg-white shadow sm:rounded-md">
+      <div className="overflow-hidden bg-white shadow sm:rounded-md" >
         <ul role="list" className="divide-y divide-gray-200">
-          {categories.data?.map((category) => (
+          {categories.data?.map((category, idx) => (
             <li key={category.id}>
               <div className="flex items-center px-4 py-4 sm:px-6">
-                <div className="flex min-w-0 flex-1 items-center">
+                {selectedTextIndex === idx ? (
+                  <div className="flex min-w-0 flex-1 items-center">
+                    <div className="flex flex-row gap-2">
+                      <input type="text" className="border rounded-md border-gray-200 bg-white" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} />
+                      <div className="flex flex-row justify-between gap-1">
+                        <button>
+                          <XMarkIcon className="h-4 w-4 text-red bg-red-400 rounded-full" onClick={() => setSelectedTextIndex(undefined)} />
+                        </button>
+                        <button>
+                          <CheckCircleIcon className="h-4 w-4 text-green-200 bg-green-400 rounded-full" onClick={() => updateCategoryName(category.id)} />
+                        </button>
 
-                  <div className="min-w-0 flex-1 md:grid md:grid-cols-2 md:gap-4">
-                    <div>
-                      <p className="truncate text-sm font-medium">{category.name}</p>
+                      </div>
 
                     </div>
 
                   </div>
-                </div>
+                ) : (
+                  <div className="flex min-w-0 flex-1 items-center" >
+                    <div className="min-w-0 flex-1 md:grid md:grid-cols-2 md:gap-4" onClick={() => handleTextClick(category.name, idx)} >
+                      <p className="truncate text-sm font-medium">{category.name}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-row gap-2">
                   <div>
                     <Switch

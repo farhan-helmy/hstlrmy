@@ -405,6 +405,21 @@ export const productRouter = router({
         },
       });
     }),
+  updateCategory: publicProcedure
+    .input(z.object({
+      id: z.string(),
+      name: z.string().min(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.category.update({
+        where: {
+          id: input?.id,
+        },
+        data: {
+          name: input?.name,
+        },
+      });
+    }),
   toggleCategoryStatus: publicProcedure
     .input(z.object({ id: z.string() }).nullish())
     .mutation(async ({ input, ctx }) => {

@@ -3,9 +3,10 @@ import { PencilSquareIcon, BoltIcon, TrashIcon } from '@heroicons/react/20/solid
 import { trpc } from "../../utils/trpc";
 import { Switch } from '@headlessui/react'
 import AddProduct from './AddProduct';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import EditProduct from './EditProduct';
 import DeleteProductModal from './DeleteProductModal';
+
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -18,6 +19,7 @@ export default function Products() {
   const [deleteProductOpen, setDeleteProductOpen] = useState(false);
   const products = trpc.products.getAll.useQuery();
   const toggleStatus = trpc.products.toggleStatus.useMutation();
+
 
   const toggleProductStatus = async (id: string) => {
     await toggleStatus.mutateAsync({ id });
@@ -40,6 +42,7 @@ export default function Products() {
 
   return (
     <>
+      
       <DeleteProductModal open={deleteProductOpen} setOpen={setDeleteProductOpen} productId={productId} />
       <button
         onClick={() => setOpen(true)}
@@ -141,6 +144,7 @@ export default function Products() {
       </ul>
       <AddProduct open={open} setOpen={setOpen} />
       <EditProduct editProductOpen={editProductOpen} setEditProductOpen={setEditProductOpen} id={productId} />
+     
     </>
   )
 }

@@ -5,10 +5,13 @@ import type { NextPageWithLayout } from "../_app";
 import Products from "../../components/admin/Products";
 
 const AdminProduct: NextPageWithLayout = () => {
+  
   return (
-  <>
-    <Products />
-  </>
+    <>
+
+      <Products />
+     
+    </>
   )
 
 }

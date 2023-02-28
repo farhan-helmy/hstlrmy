@@ -45,7 +45,7 @@ model Product {
   updatedAt   DateTime   @updatedAt
   name        String?
   price       Float?
-  weight      Int?
+  weight      Float?
   description String?
   isActive    Boolean    @default(true)
   variants    Variant[]
