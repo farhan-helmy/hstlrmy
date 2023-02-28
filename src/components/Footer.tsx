@@ -3,9 +3,9 @@ const navigation = {
     { name: 'Contact Us', href: '/contact-us' },
   ],
   legal: [
-    { name: 'Refund Policy', href: '/refund-policy' },
-    { name: 'Terms and Condition', href: '/tnc' },
-    { name: 'Private Policy', href: '/privacy-policy' },
+    { name: 'Refund Policy', href: 'https://policy.hustlermy.com/docs/refund-policy' },
+    { name: 'Terms and Condition', href: 'https://policy.hustlermy.com/docs/terms-and-condition' },
+    { name: 'Private Policy', href: 'https://policy.hustlermy.com/docs/privacy-policy' },
   ],
   social: [
     {

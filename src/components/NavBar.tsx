@@ -34,7 +34,7 @@ const navigation = {
   ],
   pages: [
     { name: 'Support', href: '#' },
-    { name: 'About us', href: '/about-us' }
+    { name: 'About us', href: 'https://policy.hustlermy.com/docs/about-us' }
   ],
 }
 
