@@ -3,7 +3,6 @@ import { trpc } from "../../utils/trpc";
 import AddCategoryForm from "./AddCategoryForm";
 import { useEffect, useRef, useState } from "react";
 import { Switch } from "@headlessui/react";
-import { useOutsideClick } from "../../custom-hooks";
 import useNotificationStore from "../../store/notification";
 
 function classNames(...classes: any) {
