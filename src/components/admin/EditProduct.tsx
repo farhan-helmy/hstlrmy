@@ -207,7 +207,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                 leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
-                <Dialog.Panel className="relative transform overflow-hidden w-full rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
+                <Dialog.Panel className="relative transform w-full rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
                   <form className="space-y-8 divide-y divide-gray-200" onSubmit={handleSubmit(onSubmit)}>
                     <div className="space-y-8 divide-y divide-gray-200">
                       <div>
@@ -330,7 +330,7 @@ export default function EditProduct({ editProductOpen, setEditProductOpen, id }:
                               ) : null}
                             </div>
                           </div>
-                          <div className="sm:col-span-6">
+                          <div className="sm:col-span-6 relative z-20">
                             {openComboBox === false && (
                               <div>loading...</div>
                             )}
