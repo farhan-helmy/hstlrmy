@@ -28,7 +28,7 @@ export const ProductLists: FC<ProductListsProps> = ({ filteredProducts }: Produc
 
   return (
     <div className="bg-white">
-      <div className="mx-auto max-w-2xl py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
+      <div className="">
         <h2 className="sr-only">Products</h2>
         {products.isLoading && (
           // loading spinner using tailwind
@@ -72,7 +72,7 @@ export const ProductLists: FC<ProductListsProps> = ({ filteredProducts }: Produc
       </div>
       {filteredProducts?.length === 0 && (
         <>
-          <div className="h-screen">
+          <div className="max-h-full">
             <div className="flex items-center justify-center py-12">
               <div className="bg-white border rounded-md flex items-center justify-center mx-4">
                 <div className="flex flex-col items-center py-16">

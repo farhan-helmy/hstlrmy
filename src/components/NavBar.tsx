@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 /*
   This example requires some changes to your config:
-  
+
   ```
   // tailwind.config.js
   module.exports = {
@@ -48,6 +48,7 @@ export default function NavBar() {
   const [cartItems, setCartItems] = useState<Item[]>([])
   const itemState = useCartStore(state => state.items);
   const getBannerText = trpc.products.getBannerText.useQuery()
+  const getShopName = trpc.shop.getName.useQuery()
   const router = useRouter()
 
 
@@ -207,7 +208,9 @@ export default function NavBar() {
                 {/* Logo */}
                 <div className="ml-4 flex lg:ml-0">
                   <Link href="/">
-                    <span className="text-3xl font-normal text-black">Hustlermy</span>
+                    {getShopName.data?.value ? (
+                      <span className="text-2xl font-normal text-black">{getShopName.data?.value}</span>
+                    ) : <span className="font-normal text-black italic text-xs">Please set shop name @ admin settings</span>}
                   </Link>
                 </div>
 

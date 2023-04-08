@@ -8,7 +8,7 @@ const BannerSlider = ()  => {
         <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
           <div className="sm:max-w-lg">
             <h1 className="font text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Welcome to Hustermy.com
+              Welcome to Demokedai
             </h1>
             <p className="mt-4 text-xl text-gray-500">
               {' '}
@@ -26,8 +26,8 @@ const BannerSlider = ()  => {
                     <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                       <div className="h-64 w-44 overflow-hidden rounded-lg sm:opacity-0 lg:opacity-100">
                         <Image
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
-                          alt=""
+                          src="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/b1eabd11-4614-4d34-8212-665c8e47318f/OIG-(2).jpg"
+                          alt="nah"
                           className="h-full w-full object-cover object-center"
                           width={200}
                           height={200}
@@ -35,36 +35,7 @@ const BannerSlider = ()  => {
                       </div>
                       <div className="h-64 w-44 overflow-hidden rounded-lg">
                         <Image
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
-                          alt=""
-                          className="h-full w-full object-cover object-center"
-                          width={200}
-                          height={200}
-                        />
-                      </div>
-                    </div>
-                    <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <Image
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
-                          alt=""
-                          className="h-full w-full object-cover object-center"
-                          width={200}
-                          height={200}
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <Image
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
-                          alt=""
-                          className="h-full w-full object-cover object-center"
-                          width={200}
-                          height={200}
-                        />
-                      </div>
-                      <div className="h-64 w-44 overflow-hidden rounded-lg">
-                        <Image
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          src="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/b1eabd11-4614-4d34-8212-665c8e47318f/OIG-(2).jpg"
                           alt=""
                           className="h-full w-full object-cover object-center"
                           width={200}
@@ -75,7 +46,7 @@ const BannerSlider = ()  => {
                     <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                       <div className="h-64 w-44 overflow-hidden rounded-lg">
                         <Image
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          src="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/b1eabd11-4614-4d34-8212-665c8e47318f/OIG-(2).jpg"
                           alt=""
                           className="h-full w-full object-cover object-center"
                           width={200}
@@ -84,7 +55,36 @@ const BannerSlider = ()  => {
                       </div>
                       <div className="h-64 w-44 overflow-hidden rounded-lg">
                         <Image
-                          src="https://hustlermy.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/84992bd7-6761-4015-b044-64832ad7acdf/4ce37865-f80f-4022-98de-65d08f97d913-2.JPG"
+                          src="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/b1eabd11-4614-4d34-8212-665c8e47318f/OIG-(2).jpg"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <Image
+                          src="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/b1eabd11-4614-4d34-8212-665c8e47318f/OIG-(2).jpg"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <Image
+                          src="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/b1eabd11-4614-4d34-8212-665c8e47318f/OIG-(2).jpg"
+                          alt=""
+                          className="h-full w-full object-cover object-center"
+                          width={200}
+                          height={200}
+                        />
+                      </div>
+                      <div className="h-64 w-44 overflow-hidden rounded-lg">
+                        <Image
+                          src="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/next-s3-uploads/b1eabd11-4614-4d34-8212-665c8e47318f/OIG-(2).jpg"
                           alt=""
                           className="h-full w-full object-cover object-center"
                           width={200}

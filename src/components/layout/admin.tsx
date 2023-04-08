@@ -67,8 +67,8 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         ```
       */}
       <Head>
-        <title>Hustlermy</title>
-        <meta name="description" content="Ecommerce nombor 1 Malaysia" />
+        <title>Demo Kedai</title>
+        <meta name="description" content="Farhan Ecommerce demo" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
       </Head>
@@ -227,11 +227,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                   <div>
                     <Menu.Button className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                       <span className="sr-only">Open user menu</span>
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt=""
-                      />
+
                     </Menu.Button>
                   </div>
                   <Transition

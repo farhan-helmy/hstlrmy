@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { AdminLayout } from "../../components/layout/admin";
 import { trpc } from "../../utils/trpc";
 import AddCategory from "../../components/admin/AddCategories";
+import UpdateShopForm from "../../components/admin/UpdateShopForm";
 
 
 
@@ -24,7 +25,6 @@ const Settings = () => {
 
 
   const submitBannerText = async () => {
-    console.log(bannerText)
     addBannerText.mutateAsync({ name: "banner", value: bannerText }).then(() => {
       getBannerText.refetch()
     })
@@ -99,7 +99,6 @@ const Settings = () => {
                       <p className="mt-2 text-sm text-gray-500">Current banner text: {getBannerText.data?.value} </p>
                     )
                   }
-
                   <div className="pt-2">
                     <button
                       onClick={submitBannerText}
@@ -109,20 +108,18 @@ const Settings = () => {
                     </button>
                   </div>
                 </div>
-
               </div>
             </div>
-
           </div>
-
         </div>
-
       )}
       {currentTab === 'Categories' && (
         <div className="mt-5">
           <AddCategory />
         </div>
-
+      )}
+      {currentTab === 'Other settings' && (
+        <UpdateShopForm />
       )}
     </div>
   )
