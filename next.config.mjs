@@ -14,7 +14,9 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ["hustlermy.s3.ap-southeast-1.amazonaws.com"],
+    domains: [
+      "d1sah57fmj9klu.cloudfront.net"
+    ],
   },
 };
 export default config;
