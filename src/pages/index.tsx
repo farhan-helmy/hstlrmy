@@ -32,6 +32,8 @@ const Home: NextPage = () => {
         <meta property="og:image" content="https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com/seothumb.png" />
         <meta property="og:url" content="https://shopdemo.farhanhelmy.com" />
         <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary"></meta>
+        <meta name="twitter:creator" content="@farhanhelmycode"></meta>
         {/* <script src="https://beamanalytics.b-cdn.net/beam.min.js" data-token="985d914f-a13a-4d21-9289-bf51f9d27097" async></script> */}
       </Head>
       <NavBar />
