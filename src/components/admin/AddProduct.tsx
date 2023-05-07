@@ -108,7 +108,8 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
     for (const element of e.target.files) {
       images.push(URL.createObjectURL(element as Blob) as unknown as ImagePreviews);
       const { url } = await uploadToS3(element);
-      urls.push(url);
+      const cloudFrontUrl = url.replace('https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com', 'https://d1sah57fmj9klu.cloudfront.net');
+      urls.push(cloudFrontUrl);
     }
 
     setImagePreviews(images);
@@ -121,19 +122,20 @@ export default function AddProduct({ open, setOpen }: AddProductProps) {
     if (e.target.files === null) return;
     const file = e.target?.files[0];
     const { url } = await uploadToS3(file as File);
+    const cloudFrontUrl = url.replace('https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com', 'https://d1sah57fmj9klu.cloudfront.net');
     const images = getValues('image');
-    setValue('image', [...images, { src: url }]);
+    setValue('image', [...images, { src: cloudFrontUrl }]);
 
     setImagePreviews([...imagePreviews as ImagePreviews[], URL.createObjectURL(file as Blob) as unknown as ImagePreviews]);
-    console.log(imagePreviews)
+    // console.log(imagePreviews)
   }
 
   const onVariantImageChange = async (e: any, index: number) => {
     if (!e.currentTarget.files) return;
     const file = e.target.files[0];
     const { url } = await uploadToS3(file);
-
-    setValue(`variant.${index}.imageSrc`, url);
+    const cloudFrontUrl = url.replace('https://hustlermy-dev.s3.ap-southeast-1.amazonaws.com', 'https://d1sah57fmj9klu.cloudfront.net');
+    setValue(`variant.${index}.imageSrc`, cloudFrontUrl);
   }
 
   const onSubmit: SubmitHandler<ProductFormInputs> = data => {
